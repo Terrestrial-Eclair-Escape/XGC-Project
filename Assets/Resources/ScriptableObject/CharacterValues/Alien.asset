@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca80cbb3c7b0e0743b176c0adfd39849, type: 3}
+  m_Name: Alien
+  m_EditorClassIdentifier: 
+  HealthMax: 10
+  MoveSpeed: 5
+  MoveAcceleration: 0.1
+  MoveDecceleration: 0.2
+  MoveTurnValue: 0.4
+  MoveTurnTime: 0.1
+  JumpAmount: 1
+  JumpSpeed: 10
+  JumpGravityAscend: 15
+  JumpGravityDescend: 20
