@@ -13,6 +13,7 @@ public class BaseCharacterMovement : MonoBehaviour
     public SettingsValues sValues;      // setting values
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
+    public Transform pickupPosition;
 
     RaycastHit hit;
     public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * 1.5f);
@@ -21,14 +22,38 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public List<float> coyoteTimer;   // list of coyotetimer values (realistically only Jump is used)
     [HideInInspector] public List<float> bufferTimer;   // list of timers for input buffers
+    [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius, 1 << (int)Constants.Layers.Pickup);   // objects close to the character
+
+    private GameObject pickedUpObject;
     private int healthCurrent;      // current health
     private int timesJumped;        // how many times in the current air session the character has jumped
     private Vector3 maxMoveValue;   // move value for acceleration, max 1
+    private float moveSpeedModifierPickup = 1;
+    private GameObject latestClosest;
 
-    public void Start()
+    public void CharacterStart()
     {
         coyoteTimer = GlobalScript.Instance.GenerateInputList();
         bufferTimer = GlobalScript.Instance.GenerateInputList();
+    }
+
+    public void CharacterFixedUpdate()
+    {
+        BufferUpdate();
+    }
+
+    public void CharacterUpdate(Vector3 moveDir, Vector3 throwTarget, bool highlightPickup = false)
+    {
+        CharacterMove(moveDir);
+        CharacterJump();
+
+        ThrowObject(throwTarget);
+        PickUpObject(highlightPickup);
+    }
+
+    public void CharacterLateUpdate()
+    {
+        CharacterOnAirborne();
     }
 
     /// <summary>
@@ -125,6 +150,165 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    void HighlightPickup(GameObject obj, bool highlight)
+    {
+        if (highlight)
+        {
+            obj.GetComponent<Renderer>().material.EnableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+        }
+        else
+        {
+            obj.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+        }
+    }
+
+    void SelectPickup(GameObject pickup)
+    {
+        pickedUpObject = pickup;
+        if (pickedUpObject != null)
+        {
+            moveSpeedModifierPickup = 1 / pickedUpObject.GetComponent<Rigidbody>().mass;
+            pickedUpObject.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+        }
+    }
+
+    void DeselectPickup()
+    {
+        moveSpeedModifierPickup = 1;
+        pickedUpObject = null;
+    }
+
+    void PickUpObject(bool highlight = false)
+    {
+        GameObject closest = (pickedUpObject == null) ? GetClosestObjectOfType(highlight) : null;
+        if(closest != null)
+        {
+            HighlightPickup(closest, highlight);
+            latestClosest = closest;
+        }
+
+        if (bufferTimer[(int)Constants.Inputs.Interact] > 0)
+        {
+            if (pickedUpObject == null)
+            {
+                SelectPickup(closest);
+            }
+            else
+            {
+                DeselectPickup();
+            }
+
+            bufferTimer[(int)Constants.Inputs.Interact] = 0;
+        }
+
+        if (closest == null && latestClosest != null)
+        {
+            HighlightPickup(latestClosest, false);
+            latestClosest = null;
+        }
+
+        if (pickedUpObject != null)
+        {
+            Rigidbody prb = pickedUpObject.GetComponent<Rigidbody>();
+            prb.MovePosition(Vector3.Slerp(pickedUpObject.transform.position, pickupPosition.position, cValues.PickupSpeed));
+            prb.velocity = new Vector3(prb.velocity.x, 0, prb.velocity.z);
+
+            /* build on this? - drop object if another object is between object and character
+            RaycastHit pHit;
+            if(Physics.Raycast(pickedUpObject.transform.position, pickedUpObject.transform.position - transform.position, out pHit))
+            {
+                Debug.Log(pHit.collider.gameObject.name);
+                if(pHit.collider.gameObject == gameObject)
+                {
+                }
+            }
+            else
+            {
+                pickedUpObject = null;
+            }*/
+        }
+    }
+
+    private void ThrowObject(Vector3 throwTarget)
+    {
+        if (bufferTimer[(int)Constants.Inputs.Fire] > 0)
+        {
+            if (pickedUpObject != null)
+            {
+                Vector3 startPos = pickedUpObject.transform.position;
+                Vector3 target = Vector3.zero;
+                float dist = -1;
+
+                foreach(RaycastHit h in Physics.RaycastAll(startPos, throwTarget - startPos, cValues.PickupThrowMaxDistance))
+                {
+                    if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
+                    {
+                        continue;
+                    }
+
+                    float compareDist = Vector3.Distance(startPos, h.point);
+                    if (compareDist < dist || dist < 0)
+                    {
+                        dist = compareDist;
+                        target = hit.point;
+                    }
+                }
+
+                if (target == Vector3.zero)
+                {
+                    Debug.Log("Nothing!");
+                    target = throwTarget; 
+                }
+                target -= startPos;
+                //target.y += 1;
+
+                pickedUpObject.GetComponent<Rigidbody>().AddForce(target.normalized * cValues.PickupForce);
+                DeselectPickup();
+            }
+
+            bufferTimer[(int)Constants.Inputs.Fire] = 0;
+        }
+    }
+
+    public GameObject GetClosestObjectOfType(bool highlight = false)
+    {
+        GameObject toReturn = null;
+
+        if (ObjectsInProximity.Length == 1)
+        {
+            toReturn = ObjectsInProximity[0].gameObject;
+        }
+        else if (ObjectsInProximity.Length > 1)
+        {
+            GameObject closest = null;
+            float closestDistance = -1;
+            float dist = -1;
+
+            foreach (Collider c in ObjectsInProximity)
+            {
+                if (highlight)
+                {
+                    HighlightPickup(c.gameObject, false);
+                }
+
+                dist = Vector3.Distance(transform.position, c.transform.position);
+                if (dist < closestDistance && closestDistance >= 0 || closestDistance < 0)
+                {
+                    if(highlight && closest != null)
+                    {
+                        HighlightPickup(closest, false);
+                    }
+
+                    closestDistance = dist;
+                    closest = c.gameObject;
+                }
+            }
+            toReturn = closest;
+        }
+
+        return toReturn;
+    }
+
     /// <summary>
     /// Set velocity's Y value directly to add an impulse in character movement (for e.g. jumps).
     /// </summary>
@@ -169,6 +353,7 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         timesJumped = 0;
         IsGrounded = true;
+        IsCoyoteTimeActive = false;
     }
 
     public void CharacterOnAirborne()
@@ -196,6 +381,7 @@ public class BaseCharacterMovement : MonoBehaviour
         if (NearGround)
         {
             timesJumped = 0;
+            IsCoyoteTimeActive = false;
         }
     }
 
@@ -221,10 +407,19 @@ public class BaseCharacterMovement : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    private Color gizmoColor = new Color32(255, 0, 0, 100);
+
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * 1.5f, transform.position.z), 0.45f);
+        Gizmos.color = gizmoColor;
+
+        // ground check
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * 1.5f, transform.position.z), 0.45f);
+
+        // pickup radius
+        Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);
+
+        Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * cValues.PickupThrowMaxDistance);
     }
 #endif
 }

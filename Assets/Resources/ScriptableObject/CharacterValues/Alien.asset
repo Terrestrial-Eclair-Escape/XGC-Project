@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: Alien
   m_EditorClassIdentifier: 
   HealthMax: 10
+  PickupRadius: 3
+  PickupSpeed: 0.2
+  PickupThrowMaxDistance: 30
+  PickupForce: 500
   MoveSpeed: 5
   MoveAcceleration: 0.1
   MoveDecceleration: 0.2

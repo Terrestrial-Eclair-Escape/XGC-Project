@@ -13,34 +13,38 @@ public class CharacterScript : BaseCharacterMovement
 
     private InputAction inputMove;
     private InputAction inputJump;
+    private InputAction inputFire;
+    private InputAction inputInteract;
 
     private void Awake()
     {
         playerActions = new PlayerInputActions();
-        coyoteTimer = GlobalScript.Instance.GenerateInputList();
-        bufferTimer = GlobalScript.Instance.GenerateInputList();
     }
 
     // Start is called before the first frame update
     private void Start()
     {
+        CharacterStart();
     }
 
     private void FixedUpdate()
     {
-        BufferUpdate();
+        CharacterFixedUpdate();
     }
 
     // Update is called once per frame
     void Update()
     {
-        CharacterMove(InputMove);
-        CharacterJump();
+        CharacterUpdate(
+            InputMove, 
+            Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
+            true
+        );
     }
 
     private void LateUpdate()
     {
-        CharacterOnAirborne();
+        CharacterLateUpdate();
     }
 
     private void OnEnable()
@@ -51,6 +55,14 @@ public class CharacterScript : BaseCharacterMovement
         inputJump = playerActions.Player.Jump;
         inputJump.Enable();
         inputJump.performed += InputJump;
+
+        inputFire = playerActions.Player.Fire;
+        inputFire.Enable();
+        inputFire.performed += InputFire;
+
+        inputInteract = playerActions.Player.Interact;
+        inputInteract.Enable();
+        inputInteract.performed += InputInteract;
     }
 
     private void OnDisable()
@@ -62,6 +74,16 @@ public class CharacterScript : BaseCharacterMovement
     private void InputJump(InputAction.CallbackContext context)
     {
         bufferTimer[(int)Constants.Inputs.Jump] = sValues.BufferLeniency;
+    }
+
+    private void InputFire(InputAction.CallbackContext context)
+    {
+        bufferTimer[(int)Constants.Inputs.Fire] = sValues.BufferLeniency;
+    }
+
+    private void InputInteract(InputAction.CallbackContext context)
+    {
+        bufferTimer[(int)Constants.Inputs.Interact] = sValues.BufferLeniency;
     }
 
     /// <summary>

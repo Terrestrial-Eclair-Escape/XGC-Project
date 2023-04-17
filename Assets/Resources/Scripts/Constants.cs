@@ -13,6 +13,7 @@ public class Constants
         Look,
         Fire,
         Jump,
+        Interact,
     }
 
     public enum Tags
@@ -23,7 +24,7 @@ public class Constants
         EditorOnly,
         MainCamera,
         Player,
-        GameController
+        GameController,
     }
 
     public enum Layers
@@ -33,6 +34,13 @@ public class Constants
         IgnoreRaycast,
         Ground,
         Water,
-        UI
+        UI,
+        Pickup,
+    }
+
+    public enum MaterialKeywords
+    {
+        _EMISSION,
+        _EmissionColor,
     }
 }
