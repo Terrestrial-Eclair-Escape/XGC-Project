@@ -69,6 +69,8 @@ public class CharacterScript : BaseCharacterMovement
     {
         inputMove.Disable();
         inputJump.Disable();
+        inputFire.Disable();
+        inputInteract.Disable();
     }
 
     private void InputJump(InputAction.CallbackContext context)

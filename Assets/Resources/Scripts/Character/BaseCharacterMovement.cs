@@ -237,9 +237,11 @@ public class BaseCharacterMovement : MonoBehaviour
             {
                 Vector3 startPos = pickedUpObject.transform.position;
                 Vector3 target = Vector3.zero;
+                
+                /* aim at closest target (WIP)
                 float dist = -1;
 
-                foreach(RaycastHit h in Physics.RaycastAll(startPos, throwTarget - startPos, cValues.PickupThrowMaxDistance))
+                foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
                 {
                     if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
                     {
@@ -252,17 +254,19 @@ public class BaseCharacterMovement : MonoBehaviour
                         dist = compareDist;
                         target = hit.point;
                     }
-                }
+                }*/
 
                 if (target == Vector3.zero)
                 {
-                    Debug.Log("Nothing!");
                     target = throwTarget; 
                 }
                 target -= startPos;
-                //target.y += 1;
 
-                pickedUpObject.GetComponent<Rigidbody>().AddForce(target.normalized * cValues.PickupForce);
+                Vector3 force = target.normalized;
+                force.y += 0.1f;
+
+                // TODO: Decide on velocity or AddForce
+                pickedUpObject.GetComponent<Rigidbody>().velocity = (force * cValues.PickupForce);
                 DeselectPickup();
             }
 
