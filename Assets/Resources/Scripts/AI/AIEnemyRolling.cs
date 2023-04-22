@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class RollingEnemy : BaseCharacterMovement
+public class AIEnemyRolling : BaseCharacterMovement, CharacterInterface
 {
     GameObject target;
 
@@ -54,7 +54,7 @@ public class RollingEnemy : BaseCharacterMovement
     {
         if (collision.transform.CompareTag(Constants.Tags.Player.ToString()))
         {
-            collision.gameObject.SendMessage("TakeDamage", 1);
+            collision.gameObject.SendMessage("TakeDamage", cValues.HealthAttack);
         }
 
         if(collision.transform.GetComponent<Rigidbody>() != null && collision.transform.GetComponent<Rigidbody>().velocity.magnitude > 2)
@@ -63,7 +63,7 @@ public class RollingEnemy : BaseCharacterMovement
         }
     }
 
-    void OnDead()
+    public void OnDead()
     {
         Destroy(this.gameObject);
     }

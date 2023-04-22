@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Script for player characters. Uses BaseCharacterMovement's functions for movement in conjunction with player inputs.
 /// </summary>
-public class CharacterScript : BaseCharacterMovement
+public class CharacterScript : BaseCharacterMovement, CharacterInterface
 {
     private PlayerInputActions playerActions;
 
@@ -109,7 +109,7 @@ public class CharacterScript : BaseCharacterMovement
         }
     }
 
-    void OnDead()
+    public void OnDead()
     {
 
         Debug.Log($"{transform.name} DEAD");

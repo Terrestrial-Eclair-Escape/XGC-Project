@@ -10,15 +10,8 @@ public class CharacterValues : ScriptableObject
 {
     [Tooltip("Character max health.")]
     public int HealthMax;
-
-    [Tooltip("How close to the character objects get recognized.")]
-    public float PickupRadius;
-    [Tooltip("Time for pickup to reach position. Lower value means slower pickup."), Range(0, 1)]
-    public float PickupSpeed;
-    [Tooltip("Max distance the character checks for collisions.")]
-    public float PickupThrowMaxDistance;
-    [Tooltip("Force to throw pickup.")]
-    public float PickupForce;
+    [Tooltip("The damage this character does.")]
+    public int HealthAttack;
 
     [Tooltip("Character move speed.")]
     public float MoveSpeed;
@@ -41,5 +34,14 @@ public class CharacterValues : ScriptableObject
     public float JumpGravityAscend;
     [Tooltip("Gravity value used on descent. Should be higher than JumpGravityAscend.")]
     public float JumpGravityDescend;
+
+    [Tooltip("How close to the character objects get recognized.")]
+    public float PickupRadius;
+    [Tooltip("Time for pickup to reach position. Lower value means slower pickup."), Range(0, 1)]
+    public float PickupSpeed;
+    [Tooltip("Max distance the character checks for collisions.")]
+    public float PickupThrowMaxDistance;
+    [Tooltip("Force to throw pickup.")]
+    public float PickupForce;
 
 }

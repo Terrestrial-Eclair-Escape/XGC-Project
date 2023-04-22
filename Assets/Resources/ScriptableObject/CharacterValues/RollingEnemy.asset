@@ -13,10 +13,7 @@ MonoBehaviour:
   m_Name: RollingEnemy
   m_EditorClassIdentifier: 
   HealthMax: 3
-  PickupRadius: 3
-  PickupSpeed: 0.2
-  PickupThrowMaxDistance: 30
-  PickupForce: 10
+  HealthAttack: 1
   MoveSpeed: 20
   MoveAcceleration: 0.01
   MoveDecceleration: 0.01
@@ -27,3 +24,7 @@ MonoBehaviour:
   JumpSpeed: 10
   JumpGravityAscend: 15
   JumpGravityDescend: 20
+  PickupRadius: 3
+  PickupSpeed: 0.2
+  PickupThrowMaxDistance: 30
+  PickupForce: 10

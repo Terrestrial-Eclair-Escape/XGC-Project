@@ -160,7 +160,7 @@ public class BaseCharacterMovement : MonoBehaviour
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
             //                              vvvv
-            rb.MovePosition(rb.position + maxMoveValue * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed);
+            rb.MovePosition(rb.position + maxMoveValue * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup);
         }
 
         // apply extra gravity values for more satisfying jump arc/fall speed
