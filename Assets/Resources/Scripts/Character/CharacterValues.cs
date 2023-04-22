@@ -26,13 +26,15 @@ public class CharacterValues : ScriptableObject
     public float MoveAcceleration;
     [Tooltip("Decceleration value for character movement. Lower value means slower decceleration. Should be higher than MoveAcceleration."), Range(0, 1)]
     public float MoveDecceleration;
-    [Tooltip("Character turn value. Lower value increases turn radius."), Range(0, 1)]
-    public float MoveTurnValue;
+    [Tooltip("The angle the character rotates when going as slow as possible. Lower value means longer turn radius. Should be higher than MoveTurnMaxAngle.")]
+    public float MoveTurnAngleSlow; 
+    [Tooltip("The angle the character rotates when going as fast as possible. Lower value means longer turn radius. Should be lower than MoveTurnMaxAngle.")]
+    public float MoveTurnAngleFast;
     [Tooltip("Time before character moves after beginning moving.")]
-    public float MoveTurnTime;
+    public float MoveWaitTime;
 
     [Tooltip("The number of times the character can jump.")]
-    public float JumpAmount;
+    public int JumpAmount;
     [Tooltip("Initial jump force.")]
     public float JumpSpeed;
     [Tooltip("Gravity value used on ascent. Should be lower than JumpGravityDescend.")]

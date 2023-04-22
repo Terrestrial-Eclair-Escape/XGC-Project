@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca80cbb3c7b0e0743b176c0adfd39849, type: 3}
-  m_Name: Alien
+  m_Name: RollingEnemy
   m_EditorClassIdentifier: 
-  HealthMax: 10
+  HealthMax: 3
   PickupRadius: 3
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 10
-  MoveSpeed: 10
-  MoveAcceleration: 16.8
-  MoveDecceleration: 0.25
-  MoveTurnAngleSlow: 60
-  MoveTurnAngleFast: 30
+  MoveSpeed: 20
+  MoveAcceleration: 0.01
+  MoveDecceleration: 0.01
+  MoveTurnAngleSlow: 2
+  MoveTurnAngleFast: 1
   MoveWaitTime: 0
-  JumpAmount: 2
+  JumpAmount: 0
   JumpSpeed: 10
   JumpGravityAscend: 15
   JumpGravityDescend: 20

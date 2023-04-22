@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -14,14 +15,16 @@ public class BaseCharacterMovement : MonoBehaviour
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
     public Transform pickupPosition;
+    public Transform characterModel;
 
     RaycastHit hit;
-    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * 1.5f);
+    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * 1.2f);
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
-    [HideInInspector] public List<float> coyoteTimer;   // list of coyotetimer values (realistically only Jump is used)
-    [HideInInspector] public List<float> bufferTimer;   // list of timers for input buffers
+    [HideInInspector] public bool IsDead;
+    [HideInInspector] public float[] coyoteTimer;   // list of coyotetimer values (realistically only Jump is used)
+    [HideInInspector] public float[] bufferTimer;   // list of timers for input buffers
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius, 1 << (int)Constants.Layers.Pickup);   // objects close to the character
 
     private GameObject pickedUpObject;
@@ -30,11 +33,14 @@ public class BaseCharacterMovement : MonoBehaviour
     private Vector3 maxMoveValue;   // move value for acceleration, max 1
     private float moveSpeedModifierPickup = 1;
     private GameObject latestClosest;
+    private Vector3 startPos;
 
     public void CharacterStart()
     {
         coyoteTimer = GlobalScript.Instance.GenerateInputList();
         bufferTimer = GlobalScript.Instance.GenerateInputList();
+        startPos = transform.position;
+        healthCurrent = cValues.HealthMax;
     }
 
     public void CharacterFixedUpdate()
@@ -45,7 +51,9 @@ public class BaseCharacterMovement : MonoBehaviour
     public void CharacterUpdate(Vector3 moveDir, Vector3 throwTarget, bool highlightPickup = false)
     {
         CharacterMove(moveDir);
-        CharacterJump();
+        CharacterJump(); 
+        
+        CharacterFallOffRespawnDebug();
 
         ThrowObject(throwTarget);
         PickUpObject(highlightPickup);
@@ -56,12 +64,20 @@ public class BaseCharacterMovement : MonoBehaviour
         CharacterOnAirborne();
     }
 
+    public void CharacterFallOffRespawnDebug()
+    {
+        if(transform.position.y < -50)
+        {
+            transform.position = startPos;
+        }
+    }
+
     /// <summary>
     /// Used for timers
     /// </summary>
     public void BufferUpdate()
     {
-        for (int i = 0; i < bufferTimer.Count; i++)
+        for (int i = 0; i < bufferTimer.Length; i++)
         {
             if (bufferTimer[i] > 0)
             {
@@ -76,6 +92,24 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    public void CharacterLeanAngleOnMove(Vector3 moveDir)
+    {
+        float maxAngle = 90;
+        float angle = Quaternion.Angle(rb.rotation, Quaternion.LookRotation(moveDir)); 
+        if (angle > 100) { angle = 100; }
+        //angle /= 100;
+        float angleDir = GlobalScript.Instance.AngleDir(rb.rotation.eulerAngles, Quaternion.LookRotation(moveDir).eulerAngles, transform.up);
+        Debug.Log(angleDir);
+
+        characterModel.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + angle * angleDir));
+        
+    }
+
+    public void CharacterRotateTowards(Vector3 rotation)
+    {
+        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, Quaternion.LookRotation(rotation, Vector3.up), Mathf.Lerp(cValues.MoveTurnAngleSlow, cValues.MoveTurnAngleFast, rb.velocity.magnitude / cValues.MoveSpeed)));
+    }
+
     public void CharacterMove(Vector3 moveDir)
     {
         // if we do a roughly 180 degree turn, set to true to adjust values to allow for a good transition
@@ -85,18 +119,21 @@ public class BaseCharacterMovement : MonoBehaviour
         if (moveDir.magnitude >= sValues.StickDeadZone && !IsUTurn)
         {
             // accelerate
-            maxMoveValue = Vector3.Slerp(maxMoveValue, moveDir, cValues.MoveAcceleration);
+            maxMoveValue = Vector3.MoveTowards(maxMoveValue, moveDir, cValues.MoveAcceleration);
+            
+            // slightly angle the player on rotation (WIP)
+            //CharacterLeanAngleOnMove(moveDir);
 
             // rotate towards move input direction
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, Quaternion.LookRotation(moveDir), cValues.MoveTurnValue));
+            CharacterRotateTowards(moveDir);
         }
         else
         {
             // deccelerate
-            maxMoveValue = Vector3.Slerp(maxMoveValue, Vector3.zero, cValues.MoveDecceleration);
-
+            maxMoveValue = Vector3.MoveTowards(maxMoveValue, Vector3.zero, cValues.MoveAcceleration);
+            
             // wait time before character starts moving (unnecessary?)
-            bufferTimer[(int)Constants.Inputs.Move] = cValues.MoveTurnTime;
+            bufferTimer[(int)Constants.Inputs.Move] = cValues.MoveWaitTime;
         }
 
         /* use this code if we want delay from input to movement (remove accelerate/deccelerate from above)
@@ -114,7 +151,7 @@ public class BaseCharacterMovement : MonoBehaviour
         // set maxMoveValue to 0 if lower than certain value
         if(maxMoveValue.magnitude < sValues.StickDeadZone)
         {
-            maxMoveValue = Vector3.zero;
+          //  maxMoveValue = Vector3.zero;
         }
 
         // move only if we have input
@@ -122,10 +159,15 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
+            //                              vvvv
             rb.MovePosition(rb.position + maxMoveValue * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed);
         }
+
+        // apply extra gravity values for more satisfying jump arc/fall speed
+        ApplyGravity();
     }
 
+    #region Y-velocity
     public void CharacterJump()
     {
         // if we have activated the buffer for jump
@@ -150,6 +192,35 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Set velocity's Y value directly to add an impulse in character movement (for e.g. jumps).
+    /// </summary>
+    /// <param name="yVel"></param>
+    public void SetYVelocity(float yVel)
+    {
+        rb.velocity = new Vector3(rb.velocity.x, yVel, rb.velocity.z);
+    }
+
+    /// <summary>
+    /// Accelerate fall speed of character
+    /// </summary>
+    void ApplyGravity()
+    {
+        
+        // limit fall speed
+        if(rb.velocity.y < -cValues.JumpGravityDescend)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, -cValues.JumpGravityDescend, rb.velocity.z);
+        }
+        // fall faster when fall has begun
+        else
+        {
+            rb.velocity -= new Vector3(0, (rb.velocity.y < 0) ? cValues.JumpGravityDescend : cValues.JumpGravityAscend, 0) * Time.deltaTime;
+        }
+    }
+    #endregion
+
+    #region PickUp
     void HighlightPickup(GameObject obj, bool highlight)
     {
         if (highlight)
@@ -167,65 +238,68 @@ public class BaseCharacterMovement : MonoBehaviour
         pickedUpObject = pickup;
         if (pickedUpObject != null)
         {
-            moveSpeedModifierPickup = 1 / pickedUpObject.GetComponent<Rigidbody>().mass;
+            moveSpeedModifierPickup = 1f / pickedUpObject.GetComponent<Rigidbody>().mass;
             pickedUpObject.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
         }
     }
 
     void DeselectPickup()
     {
-        moveSpeedModifierPickup = 1;
+        moveSpeedModifierPickup = 1f;
         pickedUpObject = null;
     }
 
     void PickUpObject(bool highlight = false)
     {
-        GameObject closest = (pickedUpObject == null) ? GetClosestObjectOfType(highlight) : null;
-        if(closest != null)
+        if (pickupPosition != null)
         {
-            HighlightPickup(closest, highlight);
-            latestClosest = closest;
-        }
-
-        if (bufferTimer[(int)Constants.Inputs.Interact] > 0)
-        {
-            if (pickedUpObject == null)
+            GameObject closest = (pickedUpObject == null) ? GetClosestObjectOfType(highlight) : null;
+            if (closest != null)
             {
-                SelectPickup(closest);
-            }
-            else
-            {
-                DeselectPickup();
+                HighlightPickup(closest, highlight);
+                latestClosest = closest;
             }
 
-            bufferTimer[(int)Constants.Inputs.Interact] = 0;
-        }
-
-        if (closest == null && latestClosest != null)
-        {
-            HighlightPickup(latestClosest, false);
-            latestClosest = null;
-        }
-
-        if (pickedUpObject != null)
-        {
-            Rigidbody prb = pickedUpObject.GetComponent<Rigidbody>();
-            prb.MovePosition(Vector3.Slerp(pickedUpObject.transform.position, pickupPosition.position, cValues.PickupSpeed));
-            prb.velocity = new Vector3(prb.velocity.x, 0, prb.velocity.z);
-
-            /* build on this? - drop object if another object is between object and character
-            RaycastHit pHit;
-            if(Physics.Raycast(pickedUpObject.transform.position, pickedUpObject.transform.position - transform.position, out pHit))
+            if (bufferTimer[(int)Constants.Inputs.Interact] > 0)
             {
-                Debug.Log(pHit.collider.gameObject.name);
-                if(pHit.collider.gameObject == gameObject)
+                if (pickedUpObject == null)
                 {
+                    SelectPickup(closest);
                 }
+                else
+                {
+                    DeselectPickup();
+                }
+
+                bufferTimer[(int)Constants.Inputs.Interact] = 0;
             }
-            else
+
+            if (closest == null && latestClosest != null)
             {
-                pickedUpObject = null;
-            }*/
+                HighlightPickup(latestClosest, false);
+                latestClosest = null;
+            }
+
+            if (pickedUpObject != null)
+            {
+                Rigidbody prb = pickedUpObject.GetComponent<Rigidbody>();
+                prb.MovePosition(Vector3.Slerp(pickedUpObject.transform.position, pickupPosition.position, cValues.PickupSpeed));
+                prb.velocity = new Vector3(prb.velocity.x, 0, prb.velocity.z);
+
+                /* build on this? - drop object if another object is between object and character
+                RaycastHit pHit;
+                if(Physics.Raycast(pickedUpObject.transform.position, pickedUpObject.transform.position - transform.position, out pHit))
+                {
+                    Debug.Log(pHit.collider.gameObject.name);
+                    if(pHit.collider.gameObject == gameObject)
+                    {
+                    }
+                }
+                else
+                {
+                    pickedUpObject = null;
+                }*/
+            }
         }
     }
 
@@ -238,7 +312,7 @@ public class BaseCharacterMovement : MonoBehaviour
                 Vector3 startPos = pickedUpObject.transform.position;
                 Vector3 target = Vector3.zero;
                 
-                /* aim at closest target (WIP)
+                /* aim at closest target according to center of screen (WIP)
                 float dist = -1;
 
                 foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
@@ -312,25 +386,9 @@ public class BaseCharacterMovement : MonoBehaviour
 
         return toReturn;
     }
+    #endregion
 
-    /// <summary>
-    /// Set velocity's Y value directly to add an impulse in character movement (for e.g. jumps).
-    /// </summary>
-    /// <param name="yVel"></param>
-    public void SetYVelocity(float yVel)
-    {
-        rb.velocity = new Vector3(rb.velocity.x, yVel, rb.velocity.z);
-    }
-
-    /// <summary>
-    /// Accelerate fall speed of character
-    /// </summary>
-    void ApplyGravity()
-    {
-        // fall faster when fall has begun
-        rb.velocity -= new Vector3(0, (rb.velocity.y < 0) ? cValues.JumpGravityDescend : cValues.JumpGravityAscend, 0) * Time.deltaTime;
-    }
-
+    #region Damage
     public void TakeDamage(int damage)
     {
         healthCurrent -= damage;
@@ -350,8 +408,9 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public void Die()
     {
-
+        IsDead = true;
     }
+    #endregion
 
     public void CharacterOnGrounded()
     {
@@ -374,9 +433,6 @@ public class BaseCharacterMovement : MonoBehaviour
                     IsCoyoteTimeActive = false;
                 }
             }
-
-            // apply extra gravity values for more satisfying jump arc/fall speed
-            ApplyGravity();
         }
     }
 
@@ -405,8 +461,8 @@ public class BaseCharacterMovement : MonoBehaviour
         if (IsGrounded)
         {
             IsGrounded = false;
-            coyoteTimer[(int)Constants.Inputs.Jump] = sValues.CoyoteTimeLeniency;
             IsCoyoteTimeActive = true;
+            coyoteTimer[(int)Constants.Inputs.Jump] = sValues.CoyoteTimeLeniency;
         }
     }
 
@@ -418,7 +474,7 @@ public class BaseCharacterMovement : MonoBehaviour
         Gizmos.color = gizmoColor;
 
         // ground check
-        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * 1.5f, transform.position.z), 0.45f);
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * 1.2f, transform.position.z), 0.45f);
 
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);

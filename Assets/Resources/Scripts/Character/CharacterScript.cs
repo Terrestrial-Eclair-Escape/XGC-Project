@@ -40,6 +40,11 @@ public class CharacterScript : BaseCharacterMovement
             Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
             true
         );
+
+        if (IsDead)
+        {
+            OnDead();
+        }
     }
 
     private void LateUpdate()
@@ -102,5 +107,11 @@ public class CharacterScript : BaseCharacterMovement
             cFwd.Normalize(); cRight.Normalize();
             return cFwd * mInput.y + cRight * mInput.x;
         }
+    }
+
+    void OnDead()
+    {
+
+        Debug.Log($"{transform.name} DEAD");
     }
 }

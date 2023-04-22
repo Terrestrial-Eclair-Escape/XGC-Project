@@ -30,13 +30,27 @@ public class GlobalScript
 
     }
 
-    public List<float> GenerateInputList()
+    public float[] GenerateInputList()
     {
-        List<float> toReturn = new List<float>();
-        foreach (var x in Enum.GetNames(typeof(Constants.Inputs)))
+        return new float[Enum.GetValues(typeof(Constants.Inputs)).Length];
+    }
+
+    public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
+    {
+        Vector3 perp = Vector3.Cross(fwd, targetDir);
+        float dir = Vector3.Dot(perp, up);
+
+        if (dir > 0.0f)
         {
-            toReturn.Add(0);
+            return 1.0f;
         }
-        return toReturn;
+        else if (dir < 0.0f)
+        {
+            return -1.0f;
+        }
+        else
+        {
+            return 0.0f;
+        }
     }
 }

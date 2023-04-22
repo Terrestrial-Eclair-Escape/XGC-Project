@@ -17,8 +17,6 @@ public class BaseCamera : MonoBehaviour
     private Vector3 camStartPos;
     [SerializeField] bool useRay;
 
-    float jumpSlerpTimer = 0.1f;
-
     private void Awake()
     {
         playerActions = new PlayerInputActions();
@@ -48,12 +46,11 @@ public class BaseCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        ParentRotation();
     }
 
     private void LateUpdate()
     {
-        ParentRotation();
         ParentPosition();
         CameraPosition();
 
@@ -75,7 +72,7 @@ public class BaseCamera : MonoBehaviour
     void ParentPosition()
     {
         Vector3 newCamPos = player.transform.position;
-        newCamPos = Vector3.Slerp(transform.position, player.transform.position, cValues.SlerpParentPosition);
+        newCamPos = Vector3.Lerp(transform.position, player.transform.position, cValues.SlerpParentPosition);
         newCamPos.y = Vector3.Slerp(transform.position, player.transform.position, cValues.SlerpParentJump).y;
 
         transform.position = newCamPos;
