@@ -27,4 +27,5 @@ MonoBehaviour:
   PickupRadius: 3
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
-  PickupForce: 10
+  PickupForce: 30
+  ExtraValueList: []

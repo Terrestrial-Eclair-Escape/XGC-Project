@@ -25,7 +25,7 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsDead;
     [HideInInspector] public float[] coyoteTimer;   // list of coyotetimer values (realistically only Jump is used)
     [HideInInspector] public float[] bufferTimer;   // list of timers for input buffers
-    [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius, 1 << (int)Constants.Layers.Pickup);   // objects close to the character
+    [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
 
     private GameObject pickedUpObject;
     private int healthCurrent;      // current health
@@ -33,25 +33,27 @@ public class BaseCharacterMovement : MonoBehaviour
     private Vector3 maxMoveValue;   // move value for acceleration, max 1
     private float moveSpeedModifierPickup = 1;
     private GameObject latestClosest;
-    private Vector3 startPos;
+    private Vector3 debugStartPos;
+    private Vector3 moveDirGlobal;
 
     public void CharacterStart()
     {
         coyoteTimer = GlobalScript.Instance.GenerateInputList();
         bufferTimer = GlobalScript.Instance.GenerateInputList();
-        startPos = transform.position;
+        debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
     }
 
     public void CharacterFixedUpdate()
     {
         BufferUpdate();
+        CharacterJump();
+        CharacterMove(moveDirGlobal);
     }
 
     public void CharacterUpdate(Vector3 moveDir, Vector3 throwTarget, bool highlightPickup = false)
     {
-        CharacterMove(moveDir);
-        CharacterJump(); 
+        this.moveDirGlobal = moveDir;
         
         CharacterFallOffRespawnDebug();
 
@@ -68,7 +70,7 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         if(transform.position.y < -50)
         {
-            transform.position = startPos;
+            transform.position = debugStartPos;
         }
     }
 
@@ -99,7 +101,7 @@ public class BaseCharacterMovement : MonoBehaviour
         if (angle > 100) { angle = 100; }
         //angle /= 100;
         float angleDir = GlobalScript.Instance.AngleDir(rb.rotation.eulerAngles, Quaternion.LookRotation(moveDir).eulerAngles, transform.up);
-        Debug.Log(angleDir);
+       // Debug.Log($"{angle} {angleDir}");
 
         characterModel.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + angle * angleDir));
         
@@ -107,7 +109,16 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public void CharacterRotateTowards(Vector3 rotation)
     {
-        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, Quaternion.LookRotation(rotation, Vector3.up), Mathf.Lerp(cValues.MoveTurnAngleSlow, cValues.MoveTurnAngleFast, rb.velocity.magnitude / cValues.MoveSpeed)));
+        Quaternion lookRot = Quaternion.LookRotation(rotation, Vector3.up);
+        Quaternion rotateTo = Quaternion.RotateTowards(rb.rotation, lookRot, Mathf.Lerp(cValues.MoveTurnAngleSlow, cValues.MoveTurnAngleFast, rb.velocity.magnitude));
+        rb.MoveRotation(rotateTo);
+
+        float maxAngle = 90;
+        float angleDir = GlobalScript.Instance.AngleDir(rb.rotation.eulerAngles, Quaternion.LookRotation(rotation).eulerAngles, transform.up);
+        characterModel.localRotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + rotateTo.z * angleDir));
+
+        // slightly angle the player on rotation (WIP)
+        //CharacterLeanAngleOnMove(rotateTo.eulerAngles);
     }
 
     public void CharacterMove(Vector3 moveDir)
@@ -120,9 +131,6 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             // accelerate
             maxMoveValue = Vector3.MoveTowards(maxMoveValue, moveDir, cValues.MoveAcceleration);
-            
-            // slightly angle the player on rotation (WIP)
-            //CharacterLeanAngleOnMove(moveDir);
 
             // rotate towards move input direction
             CharacterRotateTowards(moveDir);
@@ -130,7 +138,7 @@ public class BaseCharacterMovement : MonoBehaviour
         else
         {
             // deccelerate
-            maxMoveValue = Vector3.MoveTowards(maxMoveValue, Vector3.zero, cValues.MoveAcceleration);
+            maxMoveValue = Vector3.MoveTowards(maxMoveValue, Vector3.zero, cValues.MoveDecceleration);
             
             // wait time before character starts moving (unnecessary?)
             bufferTimer[(int)Constants.Inputs.Move] = cValues.MoveWaitTime;
@@ -165,6 +173,11 @@ public class BaseCharacterMovement : MonoBehaviour
 
         // apply extra gravity values for more satisfying jump arc/fall speed
         ApplyGravity();
+    }
+
+    public void ResetMaxMoveValue()
+    {
+        maxMoveValue = Vector3.zero;
     }
 
     #region Y-velocity
@@ -340,7 +353,7 @@ public class BaseCharacterMovement : MonoBehaviour
                 force.y += 0.1f;
 
                 // TODO: Decide on velocity or AddForce
-                pickedUpObject.GetComponent<Rigidbody>().velocity = (force * cValues.PickupForce);
+                pickedUpObject.GetComponent<Rigidbody>().AddForce(force * cValues.PickupForce, ForceMode.Impulse);
                 DeselectPickup();
             }
 

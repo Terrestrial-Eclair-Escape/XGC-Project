@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HealthMax: 3
   HealthAttack: 1
-  MoveSpeed: 20
-  MoveAcceleration: 0.01
-  MoveDecceleration: 0.01
-  MoveTurnAngleSlow: 2
-  MoveTurnAngleFast: 1
+  MoveSpeed: 8
+  MoveAcceleration: 0.1
+  MoveDecceleration: 0.005
+  MoveTurnAngleSlow: 1.5
+  MoveTurnAngleFast: 0.001
   MoveWaitTime: 0
   JumpAmount: 0
   JumpSpeed: 10
@@ -28,3 +28,10 @@ MonoBehaviour:
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 10
+  ExtraValueList:
+  - Purpose: PlayerDirectionAngle
+    Value: 20
+  - Purpose: ChargeTime
+    Value: 0.5
+  - Purpose: MaxRotSpeed
+    Value: 20

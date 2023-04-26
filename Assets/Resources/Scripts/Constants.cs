@@ -25,6 +25,8 @@ public class Constants
         MainCamera,
         Player,
         GameController,
+        Pickup,
+        MainObjective,
     }
 
     public enum Layers
@@ -35,7 +37,6 @@ public class Constants
         Ground,
         Water,
         UI,
-        Pickup,
     }
 
     public enum MaterialKeywords
