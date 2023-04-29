@@ -11,9 +11,11 @@ using UnityEngine;
 public class BaseCharacterMovement : MonoBehaviour
 {
     public CharacterValues cValues;     // character values
+    public CharacterAudio cAudio;
     public SettingsValues sValues;      // setting values
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
+    public AudioSource audioSource;
     public Transform pickupPosition;
     public Transform characterModel;
 
@@ -23,8 +25,8 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public bool IsDead;
-    [HideInInspector] public float[] coyoteTimer;   // list of coyotetimer values (realistically only Jump is used)
-    [HideInInspector] public float[] bufferTimer;   // list of timers for input buffers
+    [HideInInspector] public float[] variousTimers;   // list of variousTimers values (realistically only Jump is used)
+    [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
 
     private GameObject pickedUpObject;
@@ -35,11 +37,12 @@ public class BaseCharacterMovement : MonoBehaviour
     private GameObject latestClosest;
     private Vector3 debugStartPos;
     private Vector3 moveDirGlobal;
+    private float latestDammageImmunityBlinkTimerValue = -1;
 
     public void CharacterStart()
     {
-        coyoteTimer = GlobalScript.Instance.GenerateInputList();
-        bufferTimer = GlobalScript.Instance.GenerateInputList();
+        variousTimers = GlobalScript.Instance.GenerateTimerList();
+        bufferTimers = GlobalScript.Instance.GenerateInputList();
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
     }
@@ -56,6 +59,8 @@ public class BaseCharacterMovement : MonoBehaviour
         this.moveDirGlobal = moveDir;
         
         CharacterFallOffRespawnDebug();
+
+        DamageImmunityVisualizer();
 
         ThrowObject(throwTarget);
         PickUpObject(highlightPickup);
@@ -79,17 +84,42 @@ public class BaseCharacterMovement : MonoBehaviour
     /// </summary>
     public void BufferUpdate()
     {
-        for (int i = 0; i < bufferTimer.Length; i++)
+        for (int i = 0; i < bufferTimers.Length; i++)
         {
-            if (bufferTimer[i] > 0)
+            if (bufferTimers[i] > 0)
             {
-                bufferTimer[i] -= Time.deltaTime;
+                bufferTimers[i] -= Time.deltaTime;
             }
-
-            // the coyoteTimer list is the same length as the bufferTimer list, so run it in the same loop
-            if (coyoteTimer[i] > 0)
+        }
+        for (int i = 0; i < variousTimers.Length; i++)
+        {
+            if (variousTimers[i] > 0)
             {
-                coyoteTimer[i] -= Time.deltaTime;
+                variousTimers[i] -= Time.deltaTime;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Play audio from the characters audio list.
+    /// </summary>
+    /// <param name="audioList"></param>
+    /// <param name="specifiedAudio"></param>
+    public void PlayAudio(Constants.CharacterAudioList audioList, int specifiedAudio = -1)
+    {
+        if(audioSource != null)
+        {
+            AudioClip[] clips = (AudioClip[])cAudio.GetType().GetField(audioList.ToString()).GetValue(cAudio);
+            if (clips.Any())
+            {
+                if(specifiedAudio >= 0 && specifiedAudio < clips.Length)
+                {
+                    audioSource.PlayOneShot(clips[specifiedAudio]);
+                }
+                else
+                {
+                    audioSource.PlayOneShot(clips[UnityEngine.Random.Range(0, clips.Length)]);
+                }
             }
         }
     }
@@ -139,22 +169,7 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             // deccelerate
             maxMoveValue = Vector3.MoveTowards(maxMoveValue, Vector3.zero, cValues.MoveDecceleration);
-            
-            // wait time before character starts moving (unnecessary?)
-            bufferTimer[(int)Constants.Inputs.Move] = cValues.MoveWaitTime;
         }
-
-        /* use this code if we want delay from input to movement (remove accelerate/deccelerate from above)
-        if(bufferTimer[(int)Constants.Inputs.Move] <= 0 && moveDir.magnitude >= sValues.StickDeadZone && !IsUTurn)
-        {
-            // accelerate
-            maxMoveValue = Vector3.Slerp(maxMoveValue, moveDir, cValues.MoveAcceleration);
-        }
-        else
-        {
-            // deccelerate
-            maxMoveValue = Vector3.Slerp(maxMoveValue, Vector3.zero, cValues.MoveDecceleration);
-        }*/
 
         // set maxMoveValue to 0 if lower than certain value
         if(maxMoveValue.magnitude < sValues.StickDeadZone)
@@ -184,7 +199,7 @@ public class BaseCharacterMovement : MonoBehaviour
     public void CharacterJump()
     {
         // if we have activated the buffer for jump
-        if (bufferTimer[(int)Constants.Inputs.Jump] > 0)
+        if (bufferTimers[(int)Constants.Inputs.Jump] > 0)
         {
             // if we just landed, reset the amount of jumps remaining
             if (IsGrounded && timesJumped >= cValues.JumpAmount)
@@ -197,7 +212,9 @@ public class BaseCharacterMovement : MonoBehaviour
             {
                 SetYVelocity(cValues.JumpSpeed);
                 timesJumped++;
-                bufferTimer[(int)Constants.Inputs.Jump] = 0;
+                bufferTimers[(int)Constants.Inputs.Jump] = 0;
+                PlayAudio(Constants.CharacterAudioList.JumpVoice);
+                PlayAudio(Constants.CharacterAudioList.JumpSfx);
             }
 
             IsGrounded = false;
@@ -219,7 +236,6 @@ public class BaseCharacterMovement : MonoBehaviour
     /// </summary>
     void ApplyGravity()
     {
-        
         // limit fall speed
         if(rb.velocity.y < -cValues.JumpGravityDescend)
         {
@@ -253,13 +269,16 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             moveSpeedModifierPickup = 1f / pickedUpObject.GetComponent<Rigidbody>().mass;
             pickedUpObject.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+
+            PlayAudio(Constants.CharacterAudioList.PickupVoice);
+            PlayAudio(Constants.CharacterAudioList.PickupSfx);
         }
     }
 
     void DeselectPickup()
     {
-        moveSpeedModifierPickup = 1f;
         pickedUpObject = null;
+        moveSpeedModifierPickup = 1f;
     }
 
     void PickUpObject(bool highlight = false)
@@ -273,7 +292,7 @@ public class BaseCharacterMovement : MonoBehaviour
                 latestClosest = closest;
             }
 
-            if (bufferTimer[(int)Constants.Inputs.Interact] > 0)
+            if (bufferTimers[(int)Constants.Inputs.Interact] > 0)
             {
                 if (pickedUpObject == null)
                 {
@@ -282,9 +301,12 @@ public class BaseCharacterMovement : MonoBehaviour
                 else
                 {
                     DeselectPickup();
+
+                    PlayAudio(Constants.CharacterAudioList.DropVoice);
+                    PlayAudio(Constants.CharacterAudioList.DropSfx);
                 }
 
-                bufferTimer[(int)Constants.Inputs.Interact] = 0;
+                bufferTimers[(int)Constants.Inputs.Interact] = 0;
             }
 
             if (closest == null && latestClosest != null)
@@ -318,7 +340,7 @@ public class BaseCharacterMovement : MonoBehaviour
 
     private void ThrowObject(Vector3 throwTarget)
     {
-        if (bufferTimer[(int)Constants.Inputs.Fire] > 0)
+        if (bufferTimers[(int)Constants.Inputs.Fire] > 0)
         {
             if (pickedUpObject != null)
             {
@@ -355,9 +377,12 @@ public class BaseCharacterMovement : MonoBehaviour
                 // TODO: Decide on velocity or AddForce
                 pickedUpObject.GetComponent<Rigidbody>().AddForce(force * cValues.PickupForce, ForceMode.Impulse);
                 DeselectPickup();
+
+                PlayAudio(Constants.CharacterAudioList.ThrowVoice);
+                PlayAudio(Constants.CharacterAudioList.ThrowSfx);
             }
 
-            bufferTimer[(int)Constants.Inputs.Fire] = 0;
+            bufferTimers[(int)Constants.Inputs.Fire] = 0;
         }
     }
 
@@ -373,7 +398,7 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             GameObject closest = null;
             float closestDistance = -1;
-            float dist = -1;
+            float dist;
 
             foreach (Collider c in ObjectsInProximity)
             {
@@ -404,24 +429,65 @@ public class BaseCharacterMovement : MonoBehaviour
     #region Damage
     public void TakeDamage(int damage)
     {
-        healthCurrent -= damage;
-
-        // if we recieve negative damage (gain health), cap it at max
-        if (healthCurrent > cValues.HealthMax)
+        if (variousTimers[(int)Constants.Timers.Invincibility] <= 0)
         {
-            healthCurrent = cValues.HealthMax;
+            healthCurrent -= damage;
+
+            // if we recieve negative damage (gain health) for some reason, cap it at max
+            if (healthCurrent > cValues.HealthMax)
+            {
+                healthCurrent = cValues.HealthMax;
+            }
+
+            // check if we have lost all health
+            if (healthCurrent <= 0)
+            {
+                healthCurrent = 0;
+                Die();
+            }
+            else
+            {
+                variousTimers[(int)Constants.Timers.Invincibility] = cValues.HealthDammageImmunity;
+
+                PlayAudio(Constants.CharacterAudioList.TakeDamageVoice);
+                PlayAudio(Constants.CharacterAudioList.TakeDamageSfx);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Visual indicator on the players current damage immunity. AKA Flash of Pain
+    /// </summary>
+    void DamageImmunityVisualizer()
+    {
+        float modBlinkTimer = (variousTimers[(int)Constants.Timers.Invincibility] % sValues.DamageImmunityBlinkTimer);
+        
+        // 0: not hurt, 1: hurt (still fresh), 2: hurt (wearing off)
+        int blinkState = (variousTimers[(int)Constants.Timers.Invincibility] >= sValues.DamageImmunityLeniency && modBlinkTimer > latestDammageImmunityBlinkTimerValue) ? 1 : 
+            (variousTimers[(int)Constants.Timers.Invincibility] > 0 && variousTimers[(int)Constants.Timers.Invincibility] < sValues.DamageImmunityLeniency) ? 2 : 0;
+
+        if (blinkState != 0)
+        {
+            // blink while taking damage
+            foreach (Transform child in characterModel.transform)
+            {
+                MeshRenderer r = child.GetComponent<MeshRenderer>();
+                if (r != null)
+                {
+                    r.enabled = (blinkState == 1) ? !r.enabled : true;
+                }
+            }
         }
 
-        // check if we have lost all health
-        if (healthCurrent <= 0)
-        {
-            Die();
-        }
+        latestDammageImmunityBlinkTimerValue = modBlinkTimer;
     }
 
     public void Die()
     {
         IsDead = true;
+
+        PlayAudio(Constants.CharacterAudioList.DieVoice);
+        PlayAudio(Constants.CharacterAudioList.DieSfx);
     }
     #endregion
 
@@ -439,8 +505,8 @@ public class BaseCharacterMovement : MonoBehaviour
             // if we haven't jumped yet
             if (timesJumped == 0)
             {
-                // if coyotetimer runs out, act as if first jump has been made
-                if (coyoteTimer[(int)Constants.Inputs.Jump] <= 0 && IsCoyoteTimeActive)
+                // if variousTimers runs out, act as if first jump has been made
+                if (variousTimers[(int)Constants.Timers.CoyoteTimer] <= 0 && IsCoyoteTimeActive)
                 {
                     timesJumped++;
                     IsCoyoteTimeActive = false;
@@ -475,7 +541,7 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             IsGrounded = false;
             IsCoyoteTimeActive = true;
-            coyoteTimer[(int)Constants.Inputs.Jump] = sValues.CoyoteTimeLeniency;
+            variousTimers[(int)Constants.Timers.CoyoteTimer] = sValues.CoyoteTimeLeniency;
         }
     }
 

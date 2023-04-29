@@ -80,17 +80,17 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
 
     private void InputJump(InputAction.CallbackContext context)
     {
-        bufferTimer[(int)Constants.Inputs.Jump] = sValues.BufferLeniency;
+        bufferTimers[(int)Constants.Inputs.Jump] = sValues.BufferLeniency;
     }
 
     private void InputFire(InputAction.CallbackContext context)
     {
-        bufferTimer[(int)Constants.Inputs.Fire] = sValues.BufferLeniency;
+        bufferTimers[(int)Constants.Inputs.Fire] = sValues.BufferLeniency;
     }
 
     private void InputInteract(InputAction.CallbackContext context)
     {
-        bufferTimer[(int)Constants.Inputs.Interact] = sValues.BufferLeniency;
+        bufferTimers[(int)Constants.Inputs.Interact] = sValues.BufferLeniency;
     }
 
     /// <summary>
@@ -113,5 +113,10 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     {
 
         Debug.Log($"{transform.name} DEAD");
+    }
+
+    public IEnumerator Dying()
+    {
+        yield return null;
     }
 }

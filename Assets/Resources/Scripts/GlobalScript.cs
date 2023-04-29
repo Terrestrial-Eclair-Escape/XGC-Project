@@ -35,6 +35,11 @@ public class GlobalScript
         return new float[Enum.GetValues(typeof(Constants.Inputs)).Length];
     }
 
+    public float[] GenerateTimerList()
+    {
+        return new float[Enum.GetValues(typeof(Constants.Timers)).Length];
+    }
+
     public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
     {
         Vector3 perp = Vector3.Cross(fwd, targetDir);

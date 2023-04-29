@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd1bfc08054e29b4eae53863211a4e99, type: 3}
+  m_Name: AudioAlien
+  m_EditorClassIdentifier: 
+  JumpVoice:
+  - {fileID: 8300000, guid: 106d5f0c32cb5dd4ba6bcd558051d598, type: 3}
+  - {fileID: 8300000, guid: a375eb17b46494c45ae5c56ea234b71f, type: 3}
+  - {fileID: 8300000, guid: d6be42fc8477af54ea38290bacb54393, type: 3}
+  JumpSfx: []
+  AttackVoice:
+  - {fileID: 8300000, guid: 6579c533937cf9c48924ee9373f0ef72, type: 3}
+  AttackSfx: []
+  TakeDamageVoice:
+  - {fileID: 8300000, guid: 00617542d5df6cb4e8ddf6358cded658, type: 3}
+  - {fileID: 8300000, guid: c69ecb44da0b48641a0afd0a2b933af5, type: 3}
+  - {fileID: 8300000, guid: 5bff1755f58dc8d4bb8a6e78167b26fd, type: 3}
+  TakeDamageSfx: []
+  DieVoice:
+  - {fileID: 8300000, guid: fd2d8d7bd3816934fac9648b3609e102, type: 3}
+  - {fileID: 8300000, guid: 0e6ec805bc1a89f4ba2da473a4eb0e74, type: 3}
+  DieSfx: []
+  PickupVoice:
+  - {fileID: 8300000, guid: 50d77975fb324b2468a5a57e01beb2ed, type: 3}
+  PickupSfx:
+  - {fileID: 8300000, guid: 5f34260c51e094a41bfbba057ffec4c3, type: 3}
+  ThrowVoice:
+  - {fileID: 8300000, guid: 03013fbddd696ba47839328cf054a6f5, type: 3}
+  ThrowSfx:
+  - {fileID: 8300000, guid: 12f195f9d0aa8b5478734f489d8f95f9, type: 3}
+  DropVoice:
+  - {fileID: 8300000, guid: 48ac14cbd5b239046b10ef12ec96319d, type: 3}
+  DropSfx:
+  - {fileID: 8300000, guid: 10e98808b8321884ba3639a0c7c90271, type: 3}

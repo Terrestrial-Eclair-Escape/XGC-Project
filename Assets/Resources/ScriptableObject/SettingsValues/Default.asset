@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d2aa481b4f339a4b929d170cfa504cf, type: 3}
   m_Name: Default
   m_EditorClassIdentifier: 
+  StickDeadZone: 0.1
   BufferLeniency: 0.2
   CoyoteTimeLeniency: 0.5
-  StickDeadZone: 0.1
+  DamageImmunityLeniency: 0.5
+  DamageImmunityBlinkTimer: 0.1

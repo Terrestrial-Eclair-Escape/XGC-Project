@@ -12,6 +12,8 @@ public class CharacterValues : ScriptableObject
     public int HealthMax;
     [Tooltip("The damage this character does.")]
     public int HealthAttack;
+    [Tooltip("Time before damage immunity wears off.")]
+    public float HealthDammageImmunity;
 
     [Tooltip("Character move speed.")]
     public float MoveSpeed;
@@ -23,8 +25,6 @@ public class CharacterValues : ScriptableObject
     public float MoveTurnAngleSlow; 
     [Tooltip("The angle the character rotates when going as fast as possible. Lower value means longer turn radius. Should be lower than MoveTurnAngleSlow.")]
     public float MoveTurnAngleFast;
-    [Tooltip("Time before character moves after beginning moving.")]
-    public float MoveWaitTime;
 
     [Tooltip("The number of times the character can jump.")]
     public int JumpAmount;

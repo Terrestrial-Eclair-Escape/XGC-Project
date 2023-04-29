@@ -38,7 +38,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
                 StartCoroutine(WakeUp());
             }
 
-            if (IsAggro && IsAwake && (IsTargetWithinRange || coyoteTimer[(int)Constants.Inputs.Move] > 0))
+            if (IsAggro && IsAwake && (IsTargetWithinRange || variousTimers[(int)Constants.Timers.Searching] > 0))
             {
                 Vector3 targetPos = new Vector3(targetLastKnownLocation.x, transform.position.y, targetLastKnownLocation.z);
                 Vector3 targetRot = (targetPos - transform.position).normalized;
@@ -48,7 +48,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
                 if (angleDifference < cValues.ExtraValueList[0].Value)
                 {
-                    if (coyoteTimer[(int)Constants.Inputs.Fire] <= 0)
+                    if (variousTimers[(int)Constants.Timers.AIUniqueAttack] <= 0)
                     {
                         CharacterMove(targetRot);
                     }
@@ -59,7 +59,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
                 }
                 else
                 {
-                    coyoteTimer[(int)Constants.Inputs.Fire] = cValues.ExtraValueList[1].Value;
+                    variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
                     CharacterMove(Vector3.zero);
                     CharacterRotateTowards(targetRot);
                 }
@@ -127,7 +127,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         {
             characterModel.transform.localEulerAngles = Vector3.Lerp(startRot, Vector3.zero, timer);
             timer += (1 / aValues.TimeToWakeUp) * Time.deltaTime;
-            coyoteTimer[(int)Constants.Inputs.Fire] = cValues.ExtraValueList[1].Value;
+            variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
 
             yield return new WaitForEndOfFrame();
         }
@@ -150,5 +150,10 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         }
 
         IsAwake = false;
+    }
+
+    public IEnumerator Dying()
+    {
+        yield return null;
     }
 }

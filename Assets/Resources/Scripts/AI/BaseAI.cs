@@ -26,7 +26,7 @@ public class BaseAI : BaseCharacterMovement
             isTargetVisible = (hit.collider.CompareTag(Constants.Tags.Player.ToString()));
 
             targetLastKnownLocation = target.transform.position;
-            coyoteTimer[(int)Constants.Inputs.Move] = aValues.TimeToStopSearch;
+            variousTimers[(int)Constants.Timers.Searching] = aValues.TimeToStopSearch;
         }
         else
         {
@@ -108,7 +108,7 @@ public class BaseAI : BaseCharacterMovement
 
     public void ReturnToStartPos()
     {
-        if(!IsStartWithinRange && !IsTargetWithinRange && coyoteTimer[(int)Constants.Inputs.Move] <= 0)
+        if(!IsStartWithinRange && !IsTargetWithinRange && variousTimers[(int)Constants.Timers.Searching] <= 0)
         {
             IsAggro = false;
             CharacterMove((startPos - transform.position).normalized);

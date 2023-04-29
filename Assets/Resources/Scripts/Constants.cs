@@ -15,6 +15,13 @@ public class Constants
         Jump,
         Interact,
     }
+    public enum Timers
+    {
+        CoyoteTimer,
+        Invincibility,
+        Searching,
+        AIUniqueAttack,
+    }
 
     public enum Tags
     {
@@ -43,5 +50,29 @@ public class Constants
     {
         _EMISSION,
         _EmissionColor,
+    }
+
+    public enum CharacterAudioList
+    {
+        JumpVoice,
+        JumpSfx,
+
+        PickupVoice,
+        PickupSfx,
+
+        ThrowVoice,
+        ThrowSfx,
+
+        DropVoice,
+        DropSfx,
+
+        AttackVoice,
+        AttackSfx,
+
+        TakeDamageVoice,
+        TakeDamageSfx,
+
+        DieVoice,
+        DieSfx,
     }
 }
