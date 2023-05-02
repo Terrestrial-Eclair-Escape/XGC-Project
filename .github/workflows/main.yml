@@ -1,4 +1,4 @@
-name: Build our unity game 🎮
+name: Build unity game 🎮
 on: 
   push:
     branches:
