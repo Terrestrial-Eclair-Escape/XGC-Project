@@ -1,6 +1,5 @@
 name: Build our unity game 🎮
-on:
-  workflow-dispatch
+on: workflow-dispatch
   #push:
    # branches:
    #   - main
