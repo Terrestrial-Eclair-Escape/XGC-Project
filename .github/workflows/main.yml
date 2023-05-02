@@ -1,8 +1,8 @@
 name: Build our unity game 🎮
-on: workflow-dispatch
-  #push:
-   # branches:
-   #   - main
+on: 
+  push:
+    branches:
+      - main
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
