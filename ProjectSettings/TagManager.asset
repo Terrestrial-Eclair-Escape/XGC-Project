@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Pickup
   - MainObjective
+  - UILoadingFillBar
   layers:
   - Default
   - TransparentFX

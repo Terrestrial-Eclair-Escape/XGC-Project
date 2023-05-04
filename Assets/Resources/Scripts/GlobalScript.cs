@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Global script, can be used for globally accessible functions and changing values. 
@@ -57,5 +59,10 @@ public class GlobalScript
         {
             return 0.0f;
         }
+    }
+
+    public float GetSpeed(Vector3 previousPos, Vector3 currentPos)
+    {
+        return Mathf.Abs((currentPos - previousPos).magnitude);
     }
 }

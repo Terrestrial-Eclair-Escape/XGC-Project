@@ -12,10 +12,12 @@ public class BaseCharacterMovement : MonoBehaviour
 {
     public CharacterValues cValues;     // character values
     public CharacterAudio cAudio;
+    public CharacterAnimations cAnims;
     public SettingsValues sValues;      // setting values
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
     public AudioSource audioSource;
+    public Animator anim;
     public Transform pickupPosition;
     public Transform characterModel;
 
@@ -38,6 +40,7 @@ public class BaseCharacterMovement : MonoBehaviour
     private Vector3 debugStartPos;
     private Vector3 moveDirGlobal;
     private float latestDammageImmunityBlinkTimerValue = -1;
+    private Vector3 lastPos;
 
     public void CharacterStart()
     {
@@ -124,6 +127,25 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    void SetAnimValue(Constants.AnimatorBooleans animat, object value)
+    {
+        if (anim != null)
+        {
+            if (value is bool)
+            {
+                anim.SetBool(animat.ToString(), (bool)value);
+            }
+            if (value is int)
+            {
+                anim.SetInteger(animat.ToString(), (int)value);
+            }
+            if (value is float)
+            {
+                anim.SetFloat(animat.ToString(), (float)value);
+            }
+        }
+    }
+
     public void CharacterLeanAngleOnMove(Vector3 moveDir)
     {
         float maxAngle = 90;
@@ -171,6 +193,7 @@ public class BaseCharacterMovement : MonoBehaviour
             maxMoveValue = Vector3.MoveTowards(maxMoveValue, Vector3.zero, cValues.MoveDecceleration);
         }
 
+
         // set maxMoveValue to 0 if lower than certain value
         if(maxMoveValue.magnitude < sValues.StickDeadZone)
         {
@@ -188,6 +211,35 @@ public class BaseCharacterMovement : MonoBehaviour
 
         // apply extra gravity values for more satisfying jump arc/fall speed
         ApplyGravity();
+
+        Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
+
+        if (NearGround && IsGrounded)
+        {
+            float currentSpeed = Vector3.Distance(lastPos, currentPos);//new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+            float maxSpeed = cValues.MoveSpeed* Time.deltaTime;
+
+            if (currentSpeed < maxSpeed / 10)
+            {
+                Debug.Log("idle");
+                SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
+                SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
+            }
+            else if (currentSpeed > maxSpeed / 2)
+            {
+                Debug.Log("run");
+                SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
+                SetAnimValue(Constants.AnimatorBooleans.IsRunning, true);
+            }
+            else
+            {
+                Debug.Log("walk");
+                SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
+                SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
+            }
+        }
+
+        lastPos = currentPos;
     }
 
     public void ResetMaxMoveValue()
@@ -512,6 +564,16 @@ public class BaseCharacterMovement : MonoBehaviour
                     IsCoyoteTimeActive = false;
                 }
             }
+
+            if (!NearGround)
+            {
+                SetAnimValue(Constants.AnimatorBooleans.IsFalling, true);
+            }
+        }
+
+        if (NearGround)
+        {
+            SetAnimValue(Constants.AnimatorBooleans.IsFalling, false);
         }
     }
 

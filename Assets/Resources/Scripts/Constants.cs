@@ -34,6 +34,7 @@ public class Constants
         GameController,
         Pickup,
         MainObjective,
+        UILoadingFillBar,
     }
 
     public enum Layers
@@ -50,6 +51,15 @@ public class Constants
     {
         _EMISSION,
         _EmissionColor,
+    }
+
+    public enum Scenes
+    {
+        Loading,
+        SampleScene,
+        SebastianScene,
+        Level,
+        LevelAdjusted,
     }
 
     public enum CharacterAudioList
@@ -74,5 +84,12 @@ public class Constants
 
         DieVoice,
         DieSfx,
+    }
+
+    public enum AnimatorBooleans
+    {
+        IsWalking,
+        IsRunning,
+        IsFalling,
     }
 }
