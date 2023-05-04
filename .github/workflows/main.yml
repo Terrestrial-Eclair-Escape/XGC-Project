@@ -1,6 +1,9 @@
 name: Build unity project
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   buildForAllSupportedPlatforms:
