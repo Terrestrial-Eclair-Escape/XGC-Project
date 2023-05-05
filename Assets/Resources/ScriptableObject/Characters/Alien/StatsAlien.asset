@@ -15,15 +15,15 @@ MonoBehaviour:
   HealthMax: 10
   HealthAttack: 1
   HealthDammageImmunity: 3
-  MoveSpeed: 10
+  MoveSpeed: 7
   MoveAcceleration: 16.8
   MoveDecceleration: 0.25
   MoveTurnAngleSlow: 60
-  MoveTurnAngleFast: 30
+  MoveTurnAngleFast: 10
   JumpAmount: 2
   JumpSpeed: 10
-  JumpGravityAscend: 15
-  JumpGravityDescend: 20
+  JumpGravityAscend: 12
+  JumpGravityDescend: 18
   PickupRadius: 3
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30

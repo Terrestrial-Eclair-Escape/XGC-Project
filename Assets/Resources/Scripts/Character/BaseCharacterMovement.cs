@@ -19,10 +19,11 @@ public class BaseCharacterMovement : MonoBehaviour
     public AudioSource audioSource;
     public Animator anim;
     public Transform pickupPosition;
-    public Transform characterModel;
+    public Transform characterModelPosition;
+    public Transform characterModelMeshParent;
 
     RaycastHit hit;
-    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * 1.2f);
+    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
@@ -39,7 +40,7 @@ public class BaseCharacterMovement : MonoBehaviour
     private GameObject latestClosest;
     private Vector3 debugStartPos;
     private Vector3 moveDirGlobal;
-    private float latestDammageImmunityBlinkTimerValue = -1;
+    private float latestDamageImmunityBlinkTimerValue = -1;
     private Vector3 lastPos;
 
     public void CharacterStart()
@@ -146,6 +147,17 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    void SetMaxAnimSpeed(float speed)
+    {
+        if(anim != null)
+        {
+            if (anim.speed > speed)
+            {
+                anim.speed = speed;
+            }
+        }
+    }
+
     public void CharacterLeanAngleOnMove(Vector3 moveDir)
     {
         float maxAngle = 90;
@@ -153,21 +165,21 @@ public class BaseCharacterMovement : MonoBehaviour
         if (angle > 100) { angle = 100; }
         //angle /= 100;
         float angleDir = GlobalScript.Instance.AngleDir(rb.rotation.eulerAngles, Quaternion.LookRotation(moveDir).eulerAngles, transform.up);
-       // Debug.Log($"{angle} {angleDir}");
+        // Debug.Log($"{angle} {angleDir}");
 
-        characterModel.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + angle * angleDir));
+        characterModelPosition.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + angle * angleDir));
         
     }
 
     public void CharacterRotateTowards(Vector3 rotation)
     {
         Quaternion lookRot = Quaternion.LookRotation(rotation, Vector3.up);
-        Quaternion rotateTo = Quaternion.RotateTowards(rb.rotation, lookRot, Mathf.Lerp(cValues.MoveTurnAngleSlow, cValues.MoveTurnAngleFast, rb.velocity.magnitude));
+        Quaternion rotateTo = Quaternion.RotateTowards(rb.rotation, lookRot, Mathf.Lerp(cValues.MoveTurnAngleSlow, cValues.MoveTurnAngleFast, GlobalScript.Instance.NullYAxis(rb.velocity).magnitude));
         rb.MoveRotation(rotateTo);
 
         float maxAngle = 90;
         float angleDir = GlobalScript.Instance.AngleDir(rb.rotation.eulerAngles, Quaternion.LookRotation(rotation).eulerAngles, transform.up);
-        characterModel.localRotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + rotateTo.z * angleDir));
+        characterModelPosition.localRotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(-maxAngle, maxAngle, 0.5f + rotateTo.z * angleDir));
 
         // slightly angle the player on rotation (WIP)
         //CharacterLeanAngleOnMove(rotateTo.eulerAngles);
@@ -206,34 +218,35 @@ public class BaseCharacterMovement : MonoBehaviour
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
             //                              vvvv
-            rb.MovePosition(rb.position + maxMoveValue * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup);
+            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup);
         }
 
         // apply extra gravity values for more satisfying jump arc/fall speed
         ApplyGravity();
 
-        Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 currentPos = GlobalScript.Instance.NullYAxis(transform.position);
 
         if (NearGround && IsGrounded)
         {
-            float currentSpeed = Vector3.Distance(lastPos, currentPos);//new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+            float currentSpeed = Vector3.Distance(lastPos, currentPos);
             float maxSpeed = cValues.MoveSpeed* Time.deltaTime;
 
-            if (currentSpeed < maxSpeed / 10)
+            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.AnimationThresholdWalk)
             {
-                Debug.Log("idle");
+                anim.speed = 1;
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
-            else if (currentSpeed > maxSpeed / 2)
+            else if (currentSpeed > maxSpeed * sValues.AnimationThresholdRun)
             {
-                Debug.Log("run");
+                anim.speed = sValues.AnimationThresholdRun + moveDir.magnitude * (1 - sValues.AnimationThresholdRun);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, true);
             }
             else
             {
-                Debug.Log("walk");
+                anim.speed = 0.5f + moveDir.magnitude;
+                SetMaxAnimSpeed(1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
@@ -371,7 +384,7 @@ public class BaseCharacterMovement : MonoBehaviour
             {
                 Rigidbody prb = pickedUpObject.GetComponent<Rigidbody>();
                 prb.MovePosition(Vector3.Slerp(pickedUpObject.transform.position, pickupPosition.position, cValues.PickupSpeed));
-                prb.velocity = new Vector3(prb.velocity.x, 0, prb.velocity.z);
+                prb.velocity = GlobalScript.Instance.NullYAxis(prb.velocity);
 
                 /* build on this? - drop object if another object is between object and character
                 RaycastHit pHit;
@@ -515,13 +528,13 @@ public class BaseCharacterMovement : MonoBehaviour
         float modBlinkTimer = (variousTimers[(int)Constants.Timers.Invincibility] % sValues.DamageImmunityBlinkTimer);
         
         // 0: not hurt, 1: hurt (still fresh), 2: hurt (wearing off)
-        int blinkState = (variousTimers[(int)Constants.Timers.Invincibility] >= sValues.DamageImmunityLeniency && modBlinkTimer > latestDammageImmunityBlinkTimerValue) ? 1 : 
+        int blinkState = (variousTimers[(int)Constants.Timers.Invincibility] >= sValues.DamageImmunityLeniency && modBlinkTimer > latestDamageImmunityBlinkTimerValue) ? 1 : 
             (variousTimers[(int)Constants.Timers.Invincibility] > 0 && variousTimers[(int)Constants.Timers.Invincibility] < sValues.DamageImmunityLeniency) ? 2 : 0;
 
         if (blinkState != 0)
         {
             // blink while taking damage
-            foreach (Transform child in characterModel.transform)
+            foreach (Transform child in characterModelMeshParent.transform)
             {
                 MeshRenderer r = child.GetComponent<MeshRenderer>();
                 if (r != null)
@@ -531,7 +544,7 @@ public class BaseCharacterMovement : MonoBehaviour
             }
         }
 
-        latestDammageImmunityBlinkTimerValue = modBlinkTimer;
+        latestDamageImmunityBlinkTimerValue = modBlinkTimer;
     }
 
     public void Die()
@@ -554,6 +567,8 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         if (!IsGrounded)
         {
+            rb.velocity -= GlobalScript.Instance.NullYAxis(rb.velocity);
+
             // if we haven't jumped yet
             if (timesJumped == 0)
             {
@@ -615,7 +630,7 @@ public class BaseCharacterMovement : MonoBehaviour
         Gizmos.color = gizmoColor;
 
         // ground check
-        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * 1.2f, transform.position.z), 0.45f);
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded, transform.position.z), 0.45f);
 
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);

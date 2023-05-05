@@ -123,7 +123,8 @@ MonoBehaviour:
   audioSource: {fileID: 3537304743330589131}
   anim: {fileID: 6687291249224619337}
   pickupPosition: {fileID: 3537304743027750003}
-  characterModel: {fileID: 3537304742593318500}
+  characterModelPosition: {fileID: 3537304742593318500}
+  characterModelMeshParent: {fileID: 7849353998984003781}
   IsGrounded: 0
   IsCoyoteTimeActive: 0
   IsUTurn: 0
@@ -523,5 +524,10 @@ Animator:
 --- !u!4 &6597894627172762923 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1621d591acf54184c9e712c7a44b3f16, type: 3}
+  m_PrefabInstance: {fileID: 6636853712380371648}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7849353998984003781 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -5695832424708972027, guid: 1621d591acf54184c9e712c7a44b3f16, type: 3}
   m_PrefabInstance: {fileID: 6636853712380371648}
   m_PrefabAsset: {fileID: 0}

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HealthMax: 3
   HealthAttack: 1
+  HealthDammageImmunity: 0
   MoveSpeed: 8
   MoveAcceleration: 0.1
   MoveDecceleration: 0.005
-  MoveTurnAngleSlow: 1.5
+  MoveTurnAngleSlow: 1
   MoveTurnAngleFast: 0.001
-  MoveWaitTime: 0
   JumpAmount: 0
   JumpSpeed: 10
   JumpGravityAscend: 15

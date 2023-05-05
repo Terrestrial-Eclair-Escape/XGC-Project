@@ -15,7 +15,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         if (!IsTargetWithinRange)
         {
             UpdateStartRot();
-            characterModel.transform.localEulerAngles = startRot;
+            characterModelPosition.transform.localEulerAngles = startRot;
         }
     }
 
@@ -81,8 +81,8 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     {
         if (IsAwake)
         {
-            characterModel.transform.GetChild(0).localEulerAngles += new Vector3(Mathf.Abs(cValues.ExtraValueList[2].Value * rb.velocity.magnitude), 0, 0);
-            characterModel.transform.GetChild(0).localEulerAngles = new Vector3(characterModel.transform.GetChild(0).localEulerAngles.x, 0, 90);
+            characterModelPosition.transform.GetChild(0).localEulerAngles += new Vector3(Mathf.Abs(cValues.ExtraValueList[2].Value * rb.velocity.magnitude), 0, 0);
+            characterModelPosition.transform.GetChild(0).localEulerAngles = new Vector3(characterModelPosition.transform.GetChild(0).localEulerAngles.x, 0, 90);
         }
     }
 
@@ -101,7 +101,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
     void UpdateStartRot()
     {
-        Transform tf = characterModel.transform;
+        Transform tf = characterModelPosition.transform;
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit))
         {
@@ -125,7 +125,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         float timer = 0;
         while(timer <= 1)
         {
-            characterModel.transform.localEulerAngles = Vector3.Lerp(startRot, Vector3.zero, timer);
+            characterModelPosition.transform.localEulerAngles = Vector3.Lerp(startRot, Vector3.zero, timer);
             timer += (1 / aValues.TimeToWakeUp) * Time.deltaTime;
             variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
 
@@ -143,7 +143,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         float timer = 0;
         while (timer <= 1)
         {
-            characterModel.transform.localEulerAngles = Vector3.Lerp(Vector3.zero, startRot, timer);
+            characterModelPosition.transform.localEulerAngles = Vector3.Lerp(Vector3.zero, startRot, timer);
             timer += (1 / aValues.TimeToSleep) * Time.deltaTime;
 
             yield return new WaitForEndOfFrame();

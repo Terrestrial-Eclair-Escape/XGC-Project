@@ -52,12 +52,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cValues: {fileID: 11400000, guid: ce34b3a3a45960c4e8bbfed006226edf, type: 2}
   cAudio: {fileID: 11400000, guid: de0a6ed6f941e2345b6d0295053e4c59, type: 2}
+  cAnims: {fileID: 0}
   sValues: {fileID: 11400000, guid: 0fde304b32d07374bb6858df582f6809, type: 2}
   cCollider: {fileID: 4867505358342067808}
   rb: {fileID: 4867505358342067811}
   audioSource: {fileID: 4867505358342067812}
+  anim: {fileID: 0}
   pickupPosition: {fileID: 4867505358900866912}
-  characterModel: {fileID: 4867505358962968590}
+  characterModelPosition: {fileID: 4867505358962968590}
+  characterModelMeshParent: {fileID: 4867505358962968590}
   IsGrounded: 0
   IsCoyoteTimeActive: 0
   IsUTurn: 0
@@ -193,9 +196,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.3
-  m_Height: 5
+  m_Height: 3
   m_Direction: 1
-  m_Center: {x: 0, y: 1.5, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!65 &4867505358342067815
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -207,8 +210,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.5, y: 3, z: 4}
-  m_Center: {x: 0, y: 2, z: 0}
+  m_Size: {x: 0.5, y: 2, z: 2.5}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &4867505358900866915
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,7 +286,6 @@ GameObject:
   - component: {fileID: 4867505359172780639}
   - component: {fileID: 4867505359172780706}
   - component: {fileID: 4867505359172780637}
-  - component: {fileID: 4867505359172780707}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -299,8 +301,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4867505359172780638}
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 2.5, z: 0}
-  m_LocalScale: {x: 5, y: 0.2, z: 5}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 3, y: 0.1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4867505358962968590}
@@ -356,16 +358,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4867505359172780707
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4867505359172780638}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 0.9, y: 2.0000005, z: 0.9}
-  m_Center: {x: 0.00000008940698, y: 0, z: -0.00000008940697}

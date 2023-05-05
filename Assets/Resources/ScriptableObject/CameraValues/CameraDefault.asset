@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b311f6646319f04d8fb0b6b0289e5da, type: 3}
-  m_Name: Default
+  m_Name: CameraDefault
   m_EditorClassIdentifier: 
   SensitivityHorizontal: 6
   SensitivityVertical: 4
-  CameraHeight: 1.5
+  CameraHeight: 0.5
   SlerpCameraPosition: 0.6
   SlerpParentPosition: 0.1
   SlerpParentJump: 0.07
   AngleMax: 60
   AngleMin: -40
-  DistMax: -15
-  DistMin: -7
+  DistMax: -10
+  DistMin: -2

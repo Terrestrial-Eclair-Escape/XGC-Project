@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -61,8 +62,8 @@ public class GlobalScript
         }
     }
 
-    public float GetSpeed(Vector3 previousPos, Vector3 currentPos)
+    public Vector3 NullYAxis(Vector3 vector)
     {
-        return Mathf.Abs((currentPos - previousPos).magnitude);
+        return new Vector3(vector.x, 0, vector.z);
     }
 }
