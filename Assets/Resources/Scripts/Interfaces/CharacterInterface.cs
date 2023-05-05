@@ -5,4 +5,5 @@ using UnityEngine;
 public interface CharacterInterface
 {
     void OnDead();
+    IEnumerator Dying();
 }

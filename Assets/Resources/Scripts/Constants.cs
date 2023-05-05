@@ -15,6 +15,13 @@ public class Constants
         Jump,
         Interact,
     }
+    public enum Timers
+    {
+        CoyoteTimer,
+        Invincibility,
+        Searching,
+        AIUniqueAttack,
+    }
 
     public enum Tags
     {
@@ -25,6 +32,9 @@ public class Constants
         MainCamera,
         Player,
         GameController,
+        Pickup,
+        MainObjective,
+        UILoadingFillBar,
     }
 
     public enum Layers
@@ -35,12 +45,51 @@ public class Constants
         Ground,
         Water,
         UI,
-        Pickup,
     }
 
     public enum MaterialKeywords
     {
         _EMISSION,
         _EmissionColor,
+    }
+
+    public enum Scenes
+    {
+        Loading,
+        SampleScene,
+        SebastianScene,
+        Level,
+        LevelAdjusted,
+    }
+
+    public enum CharacterAudioList
+    {
+        JumpVoice,
+        JumpSfx,
+
+        PickupVoice,
+        PickupSfx,
+
+        ThrowVoice,
+        ThrowSfx,
+
+        DropVoice,
+        DropSfx,
+
+        AttackVoice,
+        AttackSfx,
+
+        TakeDamageVoice,
+        TakeDamageSfx,
+
+        DieVoice,
+        DieSfx,
+    }
+
+    public enum AnimatorBooleans
+    {
+        IsWalking,
+        IsRunning,
+        IsFalling,
     }
 }

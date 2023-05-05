@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Global script, can be used for globally accessible functions and changing values. 
@@ -35,6 +38,11 @@ public class GlobalScript
         return new float[Enum.GetValues(typeof(Constants.Inputs)).Length];
     }
 
+    public float[] GenerateTimerList()
+    {
+        return new float[Enum.GetValues(typeof(Constants.Timers)).Length];
+    }
+
     public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
     {
         Vector3 perp = Vector3.Cross(fwd, targetDir);
@@ -52,5 +60,10 @@ public class GlobalScript
         {
             return 0.0f;
         }
+    }
+
+    public Vector3 NullYAxis(Vector3 vector)
+    {
+        return new Vector3(vector.x, 0, vector.z);
     }
 }
