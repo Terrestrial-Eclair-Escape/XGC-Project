@@ -13,7 +13,7 @@ public class CharacterValues : ScriptableObject
     [Tooltip("The damage this character does.")]
     public int HealthAttack;
     [Tooltip("Time before damage immunity wears off.")]
-    public float HealthDammageImmunity;
+    public float HealthDamageImmunity;
 
     [Tooltip("Character move speed.")]
     public float MoveSpeed;

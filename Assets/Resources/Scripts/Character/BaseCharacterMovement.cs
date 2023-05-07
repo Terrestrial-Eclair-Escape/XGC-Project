@@ -27,7 +27,8 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
-    [HideInInspector] public bool IsDead;
+    [HideInInspector] public bool IsDead;               // character death has started
+    [HideInInspector] public bool HasDied;              // should character death start?
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values (realistically only Jump is used)
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
@@ -231,7 +232,7 @@ public class BaseCharacterMovement : MonoBehaviour
             float currentSpeed = Vector3.Distance(lastPos, currentPos);
             float maxSpeed = cValues.MoveSpeed* Time.deltaTime;
 
-            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.AnimationThresholdWalk)
+            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.StickDeadZone)
             {
                 anim.speed = 1;
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
@@ -512,7 +513,7 @@ public class BaseCharacterMovement : MonoBehaviour
             }
             else
             {
-                variousTimers[(int)Constants.Timers.Invincibility] = cValues.HealthDammageImmunity;
+                variousTimers[(int)Constants.Timers.Invincibility] = cValues.HealthDamageImmunity;
 
                 PlayAudio(Constants.CharacterAudioList.TakeDamageVoice);
                 PlayAudio(Constants.CharacterAudioList.TakeDamageSfx);
@@ -549,7 +550,7 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public void Die()
     {
-        IsDead = true;
+        HasDied = true;
 
         PlayAudio(Constants.CharacterAudioList.DieVoice);
         PlayAudio(Constants.CharacterAudioList.DieSfx);

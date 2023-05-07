@@ -6,10 +6,6 @@ using UnityEngine.UI;
 
 public class Omnipotent : MonoBehaviour
 {
-
-    bool onLoadingScreen = false;
-
-
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -18,13 +14,21 @@ public class Omnipotent : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        StartCoroutine(LoadingAsync(Constants.Scenes.TitleScreen));
     }
 
     // Update is called once per frame
     void Update()
     {
-        QuickSceneSwitch();
+        if (!SceneManager.GetActiveScene().name.Equals(Constants.Scenes.InitialScene.ToString()) && !SceneManager.GetActiveScene().name.Equals(Constants.Scenes.Loading.ToString()))
+        {
+            QuickSceneSwitch();
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
+        }
     }
 
     IEnumerator LoadingAsync(Constants.Scenes scene)

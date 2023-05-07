@@ -7,6 +7,7 @@ using UnityEngine;
 public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 {
     Vector3 startRot;
+    Vector3 lastPlacedPos;
 
     // Start is called before the first frame update
     void Start()
@@ -14,7 +15,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         AIStart();
         if (!IsTargetWithinRange)
         {
-            UpdateStartRot();
+            startRot = GlobalScript.Instance.GetStartRot(transform, characterModelPosition);
             characterModelPosition.transform.localEulerAngles = startRot;
         }
     }
@@ -27,51 +28,54 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     // Update is called once per frame
     void Update()
     {
-        AIUpdate();
 
-        if (target != null)
+        if (!HasDied)
         {
-            RotateCookie();
+            AIUpdate();
 
-            if(IsTargetWithinRange && !IsAggro && !IsAwake)
+            if (target != null)
             {
-                StartCoroutine(WakeUp());
-            }
+                RotateCookie();
 
-            if (IsAggro && IsAwake && (IsTargetWithinRange || variousTimers[(int)Constants.Timers.Searching] > 0))
-            {
-                Vector3 targetPos = new Vector3(targetLastKnownLocation.x, transform.position.y, targetLastKnownLocation.z);
-                Vector3 targetRot = (targetPos - transform.position).normalized;
-                Quaternion look = Quaternion.LookRotation(targetRot);
-                look.x -= look.x; look.z -= look.z;
-                float angleDifference = Quaternion.Angle(look, rb.rotation);
-
-                if (angleDifference < cValues.ExtraValueList[0].Value)
+                if (IsTargetWithinRange && !IsAggro && !IsAwake)
                 {
-                    if (variousTimers[(int)Constants.Timers.AIUniqueAttack] <= 0)
+                    StartCoroutine(WakeUp());
+                }
+
+                if (IsAggro && IsAwake && (IsTargetWithinRange || variousTimers[(int)Constants.Timers.Searching] > 0))
+                {
+                    Vector3 targetPos = new Vector3(targetLastKnownLocation.x, transform.position.y, targetLastKnownLocation.z);
+                    Vector3 targetRot = (targetPos - transform.position).normalized;
+                    Quaternion look = Quaternion.LookRotation(targetRot);
+                    look.x -= look.x; look.z -= look.z;
+                    float angleDifference = Quaternion.Angle(look, rb.rotation);
+
+                    if (angleDifference < cValues.ExtraValueList[0].Value)
                     {
-                        CharacterMove(targetRot);
+                        if (variousTimers[(int)Constants.Timers.AIUniqueAttack] <= 0)
+                        {
+                            CharacterMove(targetRot);
+                        }
+                        else
+                        {
+                            CharacterRotateTowards(targetRot);
+                        }
                     }
                     else
                     {
+                        variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
+                        CharacterMove(Vector3.zero);
                         CharacterRotateTowards(targetRot);
                     }
                 }
-                else
+
+                if (IsStartWithinRange && IsAwake && !IsAggro)
                 {
-                    variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
-                    CharacterMove(Vector3.zero);
-                    CharacterRotateTowards(targetRot);
+                    StartCoroutine(Sleep());
                 }
             }
-
-            if (IsStartWithinRange && IsAwake && !IsAggro)
-            {
-                StartCoroutine(Sleep());
-            }
         }
-
-        if (IsDead)
+        else if (!IsDead)
         {
             OnDead();
         }
@@ -79,11 +83,15 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
     private void RotateCookie()
     {
+        float dist = Vector3.Distance(transform.position, lastPlacedPos);
         if (IsAwake)
         {
-            characterModelPosition.transform.GetChild(0).localEulerAngles += new Vector3(Mathf.Abs(cValues.ExtraValueList[2].Value * rb.velocity.magnitude), 0, 0);
+
+            characterModelPosition.transform.GetChild(0).localEulerAngles += new Vector3(Mathf.Abs(cValues.ExtraValueList[2].Value * dist), 0, 0);
             characterModelPosition.transform.GetChild(0).localEulerAngles = new Vector3(characterModelPosition.transform.GetChild(0).localEulerAngles.x, 0, 90);
+
         }
+        lastPlacedPos = transform.position;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -95,31 +103,43 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
         if(collision.transform.GetComponent<Rigidbody>() != null && collision.transform.GetComponent<Rigidbody>().velocity.magnitude > 2)
         {
-            TakeDamage(1);
-        }
-    }
+            if (collision.transform.CompareTag(Constants.Tags.Player.ToString()))
+            {
 
-    void UpdateStartRot()
-    {
-        Transform tf = characterModelPosition.transform;
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit))
-        {
-            tf.up = hit.normal;
-            tf.eulerAngles = new Vector3(tf.eulerAngles.x, tf.eulerAngles.y, tf.eulerAngles.z + 90);
+            }
+            else
+            {
+                TakeDamage(1);
+            }
         }
-        startRot = tf.localEulerAngles;
     }
 
     public void OnDead()
     {
+        StartCoroutine(Dying());
+    }
+
+    public IEnumerator Dying()
+    {
+        IsDead = true;
+        float startY = transform.position.y;
+        float endY = 2;
+        rb.isKinematic = true;
+
+        while (transform.position.y < startY + endY)
+        {
+            transform.position += new Vector3(0, (endY) * Time.deltaTime, 0);
+            endY /= 2;
+            yield return null;
+        }
+
+        GameObject.Instantiate(Resources.Load<ParticleSystem>("Particles/DeathRollingEnemy"), transform.position, Quaternion.identity);
+
         Destroy(this.gameObject);
     }
 
     public IEnumerator WakeUp()
     {
-        Debug.Log("awake " + startRot);
-
         IsAggro = true;
 
         float timer = 0;
@@ -136,8 +156,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
     public IEnumerator Sleep()
     {
-        Debug.Log("asleep " + startRot);
-        UpdateStartRot();
+        startRot = GlobalScript.Instance.GetStartRot(transform, characterModelPosition);
         ResetMaxMoveValue();
 
         float timer = 0;
@@ -150,10 +169,5 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         }
 
         IsAwake = false;
-    }
-
-    public IEnumerator Dying()
-    {
-        yield return null;
     }
 }

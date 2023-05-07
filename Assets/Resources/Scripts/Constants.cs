@@ -55,6 +55,8 @@ public class Constants
 
     public enum Scenes
     {
+        InitialScene,
+        TitleScreen,
         Loading,
         SampleScene,
         SebastianScene,

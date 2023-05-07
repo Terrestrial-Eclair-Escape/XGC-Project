@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HealthMax: 10
   HealthAttack: 1
-  HealthDammageImmunity: 3
+  HealthDamageImmunity: 3
   MoveSpeed: 7
   MoveAcceleration: 16.8
   MoveDecceleration: 0.25
