@@ -44,16 +44,15 @@ public class BaseCamera : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        ParentRotation();
+        ParentPosition();
+        CameraPosition();
     }
 
     private void LateUpdate()
     {
-        ParentPosition();
-        CameraPosition();
-
+        ParentRotation();
     }
 
     /// <summary>
