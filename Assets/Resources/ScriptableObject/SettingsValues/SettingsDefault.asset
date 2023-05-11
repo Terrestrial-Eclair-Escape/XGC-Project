@@ -15,7 +15,7 @@ MonoBehaviour:
   StickDeadZone: 0.1
   MaxDistanceCharacterGrounded: 1.2
   BufferLeniency: 0.2
-  CoyoteTimeLeniency: 0.5
+  CoyoteTimeLeniency: 0.2
   DamageImmunityLeniency: 0.5
   DamageImmunityBlinkTimer: 0.1
   AnimationThresholdWalk: 0.01

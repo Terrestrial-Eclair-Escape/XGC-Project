@@ -25,6 +25,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private void Start()
     {
         CharacterStart();
+        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
     }
 
     private void FixedUpdate()
@@ -41,7 +42,9 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
             true
         );
 
-        if (IsDead)
+        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+
+        if (HasDied && !IsDead)
         {
             OnDead();
         }
@@ -111,12 +114,13 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
 
     public void OnDead()
     {
-
-        Debug.Log($"{transform.name} DEAD");
+        StartCoroutine(Dying());
     }
 
     public IEnumerator Dying()
     {
+        IsDead = true;
+        Debug.Log($"{transform.name} DEAD");
         yield return null;
     }
 }

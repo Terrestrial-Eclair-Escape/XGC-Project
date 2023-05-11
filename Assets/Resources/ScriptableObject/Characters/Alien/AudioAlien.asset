@@ -29,15 +29,12 @@ MonoBehaviour:
   - {fileID: 8300000, guid: fd2d8d7bd3816934fac9648b3609e102, type: 3}
   - {fileID: 8300000, guid: 0e6ec805bc1a89f4ba2da473a4eb0e74, type: 3}
   DieSfx: []
-  PickupVoice:
-  - {fileID: 8300000, guid: 50d77975fb324b2468a5a57e01beb2ed, type: 3}
+  PickupVoice: []
   PickupSfx:
   - {fileID: 8300000, guid: 5f34260c51e094a41bfbba057ffec4c3, type: 3}
-  ThrowVoice:
-  - {fileID: 8300000, guid: 03013fbddd696ba47839328cf054a6f5, type: 3}
+  ThrowVoice: []
   ThrowSfx:
   - {fileID: 8300000, guid: 12f195f9d0aa8b5478734f489d8f95f9, type: 3}
-  DropVoice:
-  - {fileID: 8300000, guid: 48ac14cbd5b239046b10ef12ec96319d, type: 3}
+  DropVoice: []
   DropSfx:
   - {fileID: 8300000, guid: 10e98808b8321884ba3639a0c7c90271, type: 3}

@@ -27,13 +27,15 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
-    [HideInInspector] public bool IsDead;
+    [HideInInspector] public bool IsDead;               // character death has started
+    [HideInInspector] public bool HasDied;              // should character death start?
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values (realistically only Jump is used)
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
+    [HideInInspector] public int healthCurrent;      // current health
+    [HideInInspector] public Omnipotent Omni;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
 
     private GameObject pickedUpObject;
-    private int healthCurrent;      // current health
     private int timesJumped;        // how many times in the current air session the character has jumped
     private Vector3 maxMoveValue;   // move value for acceleration, max 1
     private float moveSpeedModifierPickup = 1;
@@ -49,6 +51,7 @@ public class BaseCharacterMovement : MonoBehaviour
         bufferTimers = GlobalScript.Instance.GenerateInputList();
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
+        Omni = GameObject.Find(Constants.OmnipotentName).GetComponent<Omnipotent>();
     }
 
     public void CharacterFixedUpdate()
@@ -126,6 +129,26 @@ public class BaseCharacterMovement : MonoBehaviour
                 }
             }
         }
+    }
+    public AudioClip GetAudio(Constants.CharacterAudioList audioList, int specifiedAudio = -1)
+    {
+        if (audioSource != null)
+        {
+            AudioClip[] clips = (AudioClip[])cAudio.GetType().GetField(audioList.ToString()).GetValue(cAudio);
+            if (clips.Any())
+            {
+                if (specifiedAudio >= 0 && specifiedAudio < clips.Length)
+                {
+                    return clips[specifiedAudio];
+                }
+                else
+                {
+                    return clips[UnityEngine.Random.Range(0, clips.Length)];
+                }
+            }
+        }
+
+        return null;
     }
 
     void SetAnimValue(Constants.AnimatorBooleans animat, object value)
@@ -231,7 +254,7 @@ public class BaseCharacterMovement : MonoBehaviour
             float currentSpeed = Vector3.Distance(lastPos, currentPos);
             float maxSpeed = cValues.MoveSpeed* Time.deltaTime;
 
-            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.AnimationThresholdWalk)
+            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.StickDeadZone)
             {
                 anim.speed = 1;
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
@@ -512,7 +535,7 @@ public class BaseCharacterMovement : MonoBehaviour
             }
             else
             {
-                variousTimers[(int)Constants.Timers.Invincibility] = cValues.HealthDammageImmunity;
+                variousTimers[(int)Constants.Timers.Invincibility] = cValues.HealthDamageImmunity;
 
                 PlayAudio(Constants.CharacterAudioList.TakeDamageVoice);
                 PlayAudio(Constants.CharacterAudioList.TakeDamageSfx);
@@ -549,10 +572,12 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public void Die()
     {
-        IsDead = true;
+        if (!HasDied)
+        {
+            HasDied = true;
 
-        PlayAudio(Constants.CharacterAudioList.DieVoice);
-        PlayAudio(Constants.CharacterAudioList.DieSfx);
+            PlayAudio(Constants.CharacterAudioList.DieVoice);
+        }
     }
     #endregion
 

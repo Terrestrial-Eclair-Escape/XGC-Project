@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class Constants
 {
+    public static string OmnipotentName = "_OMNIPOTENT";
+
     public enum Inputs
     {
         Move,
@@ -55,6 +57,8 @@ public class Constants
 
     public enum Scenes
     {
+        InitialScene,
+        TitleScreen,
         Loading,
         SampleScene,
         SebastianScene,

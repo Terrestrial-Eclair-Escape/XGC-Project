@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,6 +13,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GlobalScript
 {
+
+
     private static GlobalScript _instance;
     public static GlobalScript Instance => (_instance == null) ? new GlobalScript() : _instance;
 
@@ -65,5 +66,16 @@ public class GlobalScript
     public Vector3 NullYAxis(Vector3 vector)
     {
         return new Vector3(vector.x, 0, vector.z);
+    }
+
+    public Vector3 GetStartRot(Transform obj, Transform characterModel)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(obj.position, Vector3.down, out hit))
+        {
+            characterModel.up = hit.normal;
+            characterModel.eulerAngles = new Vector3(characterModel.eulerAngles.x, characterModel.eulerAngles.y, characterModel.eulerAngles.z + 90);
+        }
+        return characterModel.localEulerAngles;
     }
 }

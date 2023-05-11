@@ -60,6 +60,7 @@ public class BaseAI : BaseCharacterMovement
         }
     }
 
+
     public bool IsStartWithinRange
     {
         get
