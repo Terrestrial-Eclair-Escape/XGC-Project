@@ -39,8 +39,6 @@ public class HazardSwissRoll : MonoBehaviour
 
         Destroy(startPosObj.gameObject);
         Destroy(endPosObj.gameObject);
-
-        Debug.Log(startPos);
     }
 
     // Update is called once per frame

@@ -126,14 +126,15 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
         float endY = 2;
         rb.isKinematic = true;
 
-        while (transform.position.y < startY + endY)
+        while (audioSource.isPlaying)
         {
             transform.position += new Vector3(0, (endY) * Time.deltaTime, 0);
-            endY /= 2;
+            endY *= 0.95f;
             yield return null;
         }
 
-        GameObject.Instantiate(Resources.Load<ParticleSystem>("Particles/DeathRollingEnemy"), transform.position, Quaternion.identity);
+        ParticleSystem particles = GameObject.Instantiate(Resources.Load<ParticleSystem>("Particles/DeathRollingEnemy"), transform.position, Quaternion.identity);
+        particles.GetComponent<AudioSource>().PlayOneShot(GetAudio(Constants.CharacterAudioList.DieSfx));
 
         Destroy(this.gameObject);
     }

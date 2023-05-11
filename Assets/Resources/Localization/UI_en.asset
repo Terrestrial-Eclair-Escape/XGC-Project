@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 40848240640
-    m_Localized: Press Enter to start
+    m_Localized: Press Space to start
     m_Metadata:
       m_Items: []
   - m_Id: 235728187392

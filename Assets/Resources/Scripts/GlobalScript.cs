@@ -13,6 +13,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GlobalScript
 {
+
+
     private static GlobalScript _instance;
     public static GlobalScript Instance => (_instance == null) ? new GlobalScript() : _instance;
 
