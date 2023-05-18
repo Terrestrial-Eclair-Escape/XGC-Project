@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 40848240640
-    m_Localized: Press Space to start
+    m_Localized: Start game
     m_Metadata:
       m_Items: []
   - m_Id: 235728187392
@@ -28,6 +28,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2914256859136
     m_Localized: Initializing...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2427845091438592
+    m_Localized: Paused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2428136587177984
+    m_Localized: Return to title screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2537822305038336
+    m_Localized: Resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2558420980772864
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909698361569280
+    m_Localized: You were defeated
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909941413097472
+    m_Localized: Restart stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3565668683132928
+    m_Localized: Level cleared!
     m_Metadata:
       m_Items: []
   references:

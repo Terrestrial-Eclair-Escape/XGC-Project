@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 40848240640
-    m_Localized: "Tryck p\xE5 Mellanslag f\xF6r att b\xF6rja"
+    m_Localized: Starta spelet
     m_Metadata:
       m_Items: []
   - m_Id: 235728187392
@@ -28,6 +28,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2914256859136
     m_Localized: Initialiserar...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2427845091438592
+    m_Localized: Pausat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2428136587177984
+    m_Localized: "\xC5terv\xE4nd till startsk\xE4rmen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2537822305038336
+    m_Localized: "\xC5teruppta"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2558420980772864
+    m_Localized: Avsluta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909698361569280
+    m_Localized: Du blev besegrad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909941413097472
+    m_Localized: Starta om banan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3565668683132928
+    m_Localized: "Niv\xE5 avklarad!"
     m_Metadata:
       m_Items: []
   references:

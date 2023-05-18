@@ -33,9 +33,10 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public int healthCurrent;      // current health
     [HideInInspector] public Omnipotent Omni;
+    [HideInInspector] public GameObject pickedUpObject;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
 
-    private GameObject pickedUpObject;
+
     private int timesJumped;        // how many times in the current air session the character has jumped
     private Vector3 maxMoveValue;   // move value for acceleration, max 1
     private float moveSpeedModifierPickup = 1;
@@ -47,8 +48,8 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public void CharacterStart()
     {
-        variousTimers = GlobalScript.Instance.GenerateTimerList();
-        bufferTimers = GlobalScript.Instance.GenerateInputList();
+        variousTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.Timers));
+        bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.Inputs));
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
         Omni = GameObject.Find(Constants.OmnipotentName).GetComponent<Omnipotent>();

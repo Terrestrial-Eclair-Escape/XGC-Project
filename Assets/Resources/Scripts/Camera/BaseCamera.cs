@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -38,6 +36,8 @@ public class BaseCamera : MonoBehaviour
     {
         camActual.SetParent(cam);
         camActual.localPosition = transform.forward;
+
+        transform.position = player.transform.position;
 
         camStartPos = new Vector3(0, cValues.CameraHeight, 0);
         cam.localPosition = camStartPos;

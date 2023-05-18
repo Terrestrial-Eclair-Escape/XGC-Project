@@ -34,6 +34,11 @@ public class GlobalScript
 
     }
 
+    public float[] GenerateEnumList(Type enumType)
+    {
+        return new float[Enum.GetValues(enumType).Length];
+    }
+
     public float[] GenerateInputList()
     {
         return new float[Enum.GetValues(typeof(Constants.Inputs)).Length];

@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: 63a987114dedc0f4486b61f5e24766bf
   m_Entries:
   - m_Id: 40848240640
-    m_Key: title_start
+    m_Key: start
     m_Metadata:
       m_Items: []
   - m_Id: 235728187392
@@ -25,6 +25,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2914256859136
     m_Key: title_initializing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2427845091438592
+    m_Key: pause_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2428136587177984
+    m_Key: returntotitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2537822305038336
+    m_Key: resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2558420980772864
+    m_Key: quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909698361569280
+    m_Key: death_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2909941413097472
+    m_Key: restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3565668683132928
+    m_Key: stage_cleared
     m_Metadata:
       m_Items: []
   m_Metadata:
