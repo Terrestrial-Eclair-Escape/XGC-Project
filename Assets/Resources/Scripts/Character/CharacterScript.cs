@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Script for player characters. Uses BaseCharacterMovement's functions for movement in conjunction with player inputs.
@@ -15,6 +16,8 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private InputAction inputJump;
     private InputAction inputFire;
     private InputAction inputInteract;
+
+    private bool StageCleared;
 
     private void Awake()
     {
@@ -30,24 +33,29 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
 
     private void FixedUpdate()
     {
-        CharacterFixedUpdate();
+        if (!HasDied)
+        {
+            CharacterFixedUpdate();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        CharacterUpdate(
-            InputMove, 
-            Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
-            true
-        );
-
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
-
-        if (HasDied && !IsDead)
+        if (!HasDied)
+        {
+            CharacterUpdate(
+                InputMove,
+                Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
+                true
+            );
+        }
+        else if (!IsDead)
         {
             OnDead();
         }
+
+        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
     }
 
     private void LateUpdate()
@@ -122,5 +130,35 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         IsDead = true;
         Debug.Log($"{transform.name} DEAD");
         yield return null;
+    }
+
+    public IEnumerator OnStageCleared()
+    {
+        Omni.SetVictoryState();
+        StageCleared = true;
+        yield return new WaitForSecondsRealtime(2);
+        Omni.LoadNextScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag(Constants.Tags.Goal.ToString()))
+        {
+            VictoryCheck();
+        }
+    }
+
+    void VictoryCheck()
+    {
+        if (!StageCleared)
+        {
+            if (pickedUpObject != null)
+            {
+                if (pickedUpObject.CompareTag(Constants.Tags.MainObjective.ToString()))
+                {
+                    StartCoroutine(OnStageCleared());
+                }
+            }
+        }
     }
 }

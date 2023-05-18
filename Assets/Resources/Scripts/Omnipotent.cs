@@ -1,93 +1,489 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Omnipotent : MonoBehaviour
 {
-    // Inputs
+    //inputs 
     private PlayerInputActions playerActions;
 
     private InputAction inputClick;
     private InputAction inputSubmit;
+    private InputAction inputPause;
+    private InputAction inputNavigation;
+    private InputAction inputPoint;
 
+    public SettingsValues sValues;
+    [HideInInspector] public bool IsPaused;
+
+    float[] bufferTimers;
+
+    private Constants.MenuStates menuState;
 
     // UI
+    public Canvas TitleCanvas;
     public Canvas GameplayCanvas;
 
     private bool IsLoadingScene => (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.InitialScene.ToString()) || SceneManager.GetActiveScene().name.Equals(Constants.Scenes.Loading.ToString()));
+    private bool loadingComplete;
 
     private Canvas loadedUI;
     private Image GameplayHealthRadial;
     private TMPro.TextMeshProUGUI GameplayHealthText;
+    private EventSystem eventSys;
+
+    private int pauseIndex = 1;
+    private int deathIndex = 2;
+    private int victoryIndex = 3;
+    private int titleIndex = 1;
+
+    private int menuValue;
+    private int lastMenuValue;
+    private Vector2 lastMousePos = Constants.DefaultMousePos;
 
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
         playerActions = new PlayerInputActions();
+        bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.UIInputs));
+        eventSys = this.GetComponent<EventSystem>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(LoadingAsync(Constants.Scenes.TitleScreen));
+        SwitchScene(Constants.Scenes.TitleScreen);
     }
 
     // Update is called once per frame
     void Update()
     {
+        BufferUpdate();
+
         if (!IsLoadingScene)
         {
             QuickSceneSwitch();
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
         }
 
         if (IsLoadingScene)
         {
-
+            ResetValues();
         }
         else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
         {
-            //StartCoroutine(LoadingAsync(Constants.Scenes.LevelAdjusted));
+            Time.timeScale = 1;
+
+            menuState = Constants.MenuStates.Title;
+
+            MenuControls();
         }
         else
         {
             UpdateGameplayUI();
+
+            MenuControls();
+        }
+
+        Debug.Log(menuValue);
+
+        UpdateLastMousePos();
+    }
+
+    /// <summary>
+    /// Checks if the player is using the mouse. Deselects the menu button if they are and the mouse isn't positioned on the button
+    /// </summary>
+    void UpdateLastMousePos()
+    {
+        Vector2 inputMouse = inputPoint.ReadValue<Vector2>();
+        bool onButton = false;
+
+        PointerEventData pointerEventData = new PointerEventData(eventSys) { position = inputMouse };
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerEventData, raycastResults);
+        GameObject resultObj = null;
+
+        if (raycastResults.Any())
+        {
+            foreach (RaycastResult result in raycastResults)
+            {
+                if (result.gameObject.tag.Equals(Constants.Tags.UIButton.ToString()))
+                {
+                    onButton = true;
+                    resultObj = result.gameObject;
+                }
+            }
+        }
+
+        if (onButton)
+        {
+            menuValue = resultObj.transform.GetSiblingIndex();
+            lastMenuValue = menuValue;
+        }
+        else
+        {
+            if (inputMouse != lastMousePos && lastMousePos != Constants.DefaultMousePos)
+            {
+                menuValue = -1;
+            }
+        }
+
+        lastMousePos = inputMouse;
+    }
+
+    void ResetValues()
+    {
+        IsPaused = false;
+        menuState = Constants.MenuStates.None;
+        Time.timeScale = 1;
+    }
+
+    void BufferUpdate()
+    {
+        for (int i = 0; i < bufferTimers.Length; i++)
+        {
+            if (bufferTimers[i] > 0)
+            {
+                bufferTimers[i] -= Time.unscaledDeltaTime;
+            }
         }
     }
+
+    #region Inputs
 
     private void OnEnable()
     {
         inputClick = playerActions.UI.Click;
         inputClick.Enable();
+        inputClick.performed += InputClick;
 
-        inputSubmit = playerActions.Player.Jump;
+        inputSubmit = playerActions.UI.Submit;
         inputSubmit.Enable();
         inputSubmit.performed += InputSubmit;
+
+        inputPause = playerActions.UI.Pause;
+        inputPause.Enable();
+        inputPause.performed += InputPause;
+
+        inputNavigation = playerActions.UI.Navigate;
+        inputNavigation.Enable();
+
+        inputPoint = playerActions.UI.Point;
+        inputPoint.Enable();
     }
 
     private void OnDisable()
     {
         inputClick.Disable();
         inputSubmit.Disable();
+        inputPause.Disable();
+        inputNavigation.Disable();
+        inputPoint.Disable();
     }
 
     private void InputSubmit(InputAction.CallbackContext context)
     {
-        if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
+        if (IsLoadingScene)
         {
-            StartCoroutine(LoadingAsync(Constants.Scenes.LevelAdjusted));
+
+        }
+        else
+        {
+            GetMenuAction();
         }
     }
 
-    IEnumerator LoadingAsync(Constants.Scenes scene)
+    private void InputClick(InputAction.CallbackContext context)
+    {
+        if (IsLoadingScene)
+        {
+
+        }
+        else
+        {
+            GetMenuAction();
+        }
+    }
+
+    private void InputPause(InputAction.CallbackContext context)
+    {
+        if (IsLoadingScene)
+        {
+        }
+        else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
+        {
+            //SwitchScene(Constants.Scenes.LevelAdjusted);
+        }
+        else
+        {
+            ChangePauseState();
+        }
+    }
+    #endregion
+
+    void ChangePauseState()
+    {
+        if (menuState == Constants.MenuStates.Pause || menuState == Constants.MenuStates.None)
+        {
+            IsPaused = !IsPaused;
+            loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(IsPaused);
+
+            menuValue = 0;
+            lastMenuValue = menuValue;
+
+            if (IsPaused)
+            {
+                Time.timeScale = 0;
+
+                menuState = Constants.MenuStates.Pause;
+
+                if (loadedUI.transform.GetChild(pauseIndex) == null)
+                {
+                }
+            }
+            else
+            {
+                Time.timeScale = 1;
+
+                menuState = Constants.MenuStates.None;
+
+                if (loadedUI.transform.GetChild(pauseIndex) != null)
+                {
+                    //Destroy(loadedPause);
+                }
+            }
+        }
+    }
+
+    public void SetVictoryState()
+    {
+        menuState = Constants.MenuStates.Victory;
+        loadedUI.transform.GetChild(victoryIndex).gameObject.SetActive(true);
+    }
+
+    void MenuControls()
+    {
+        if (loadingComplete && menuState != Constants.MenuStates.None)
+        {
+            int menuItems = 0;
+            int currentIndex = 0;
+
+            switch (menuState)
+            {
+                case Constants.MenuStates.Pause:
+                    currentIndex = pauseIndex;
+                    menuItems = loadedUI.transform.GetChild(currentIndex).childCount - 2;
+                    break;
+                case Constants.MenuStates.Death:
+                    currentIndex = deathIndex;
+                    menuItems = loadedUI.transform.GetChild(currentIndex).childCount - 2;
+                    break;
+                case Constants.MenuStates.Title:
+                    currentIndex = titleIndex;
+                    menuItems = loadedUI.transform.GetChild(currentIndex).childCount - 1;
+                    break;
+                case Constants.MenuStates.Victory:
+                    //currentIndex = victoryIndex;
+                    //menuItems = loadedUI.transform.GetChild(currentIndex).childCount - 1;
+                    break;
+            }
+
+            Vector2 nav = inputNavigation.ReadValue<Vector2>();
+
+            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0)
+            {
+                if (nav.y > 0)
+                {
+                    if (menuValue < 0)
+                    {
+                        menuValue = lastMenuValue;
+                    }
+                    else
+                    {
+                        menuValue--;
+                        if (menuValue < 0)
+                        {
+                            menuValue = menuItems;
+                        }
+                        lastMenuValue = menuValue;
+                    }
+
+                    bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
+                }
+                else if (nav.y < 0)
+                {
+                    if (menuValue < 0)
+                    {
+                        menuValue = lastMenuValue;
+                    }
+                    else
+                    {
+                        menuValue++;
+                        if (menuValue > menuItems)
+                        {
+                            menuValue = 0;
+                        }
+                        lastMenuValue = menuValue;
+                    }
+
+                    bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
+                }
+            }
+
+            if (nav.y == 0)
+            {
+                bufferTimers[(int)Constants.UIInputs.Navigate] = 0;
+            }
+
+            for (int i = 0; i <= menuItems; i++)
+            {
+                VisualizeMenuOption(loadedUI.transform.GetChild(currentIndex).GetChild(i), menuValue, i);
+            }
+        }
+    }
+
+    void VisualizeMenuOption(Transform option, int currentIndex, int currentOption)
+    {
+        option.GetComponent<Image>().color = (currentIndex == currentOption) ? Color.white : new Color32(255, 255, 255, 100);
+    }
+
+    void GetMenuAction()
+    {
+        string optionName = "";
+
+        if (menuValue >= 0)
+        {
+            switch (menuState)
+            {
+                case Constants.MenuStates.Pause:
+                    optionName = loadedUI.transform.GetChild(pauseIndex).GetChild(menuValue).name;
+                    break;
+                case Constants.MenuStates.Death:
+                    optionName = loadedUI.transform.GetChild(deathIndex).GetChild(menuValue).name;
+                    break;
+                case Constants.MenuStates.Title:
+                    optionName = loadedUI.transform.GetChild(titleIndex).GetChild(menuValue).name;
+                    break;
+                case Constants.MenuStates.Victory:
+                    //optionName = loadedUI.transform.GetChild(victoryIndex).GetChild(menuValue).name;
+                    break;
+            }
+        }
+
+        if (optionName.Contains("Start"))
+        {
+            SwitchScene(Constants.Scenes.LevelAdjusted);
+        }
+        else if (optionName.Contains("Resume"))
+        {
+            ChangePauseState();
+        }
+        else if (optionName.Contains("Restart"))
+        {
+            SwitchScene(SceneManager.GetActiveScene().name);
+        }
+        else if (optionName.Contains("Title"))
+        {
+            SwitchScene(Constants.Scenes.TitleScreen);
+        }
+        else if (optionName.Contains("Quit"))
+        {
+            Application.Quit();
+        }
+    }
+
+    void UpdateGameplayUI()
+    {
+        if (GameplayHealthRadial != null)
+        {
+            if (UIHealthMax != 0)
+            {
+                GameplayHealthRadial.fillAmount = (float)UIHealthCurrent / (float)UIHealthMax;
+            }
+        }
+        else
+        {
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        }
+
+
+        if (GameplayHealthText != null)
+        {
+            GameplayHealthText.text = UIHealthCurrent.ToString();
+        }
+        else
+        {
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+        }
+
+        if(UIHealthCurrent <= 0)
+        {
+            menuState = Constants.MenuStates.Death;
+            loadedUI.transform.GetChild(deathIndex).gameObject.SetActive(true);
+        }
+    }
+
+    [HideInInspector] public int UIHealthMax;
+    [HideInInspector] public int UIHealthCurrent;
+
+    public void UIHealthUpdate(int max, int current)
+    {
+        UIHealthMax = max;
+        UIHealthCurrent = current;
+    }
+
+    #region Scenes
+    public void SwitchScene(string scene)
+    {
+        StartCoroutine(LoadingAsync(scene));
+    }
+
+    public void SwitchScene(Constants.Scenes scene)
+    {
+        SwitchScene(scene.ToString());
+    }
+
+    void UnloadUI()
+    {
+        loadingComplete = false;
+        menuValue = 0;
+        loadedUI = null;
+        GameplayHealthRadial = null;
+        GameplayHealthText = null;
+    }
+
+    void LoadUI()
+    {
+        if (IsLoadingScene)
+        {
+
+        }
+        else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
+        {
+            loadedUI = GameObject.Instantiate(TitleCanvas);
+        }
+        else
+        {
+            loadedUI = GameObject.Instantiate(GameplayCanvas);
+
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+
+            loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(false);
+            loadedUI.transform.GetChild(deathIndex).gameObject.SetActive(false);
+            loadedUI.transform.GetChild(victoryIndex).gameObject.SetActive(false);
+        }
+
+        loadingComplete = true;
+    }
+
+    IEnumerator LoadingAsync(string scene)
     {
         UnloadUI();
 
@@ -114,7 +510,7 @@ public class Omnipotent : MonoBehaviour
 
         while (!operationMain.isDone)
         {
-            if(_progressBar != null)
+            if (_progressBar != null)
             {
                 _progressBar.fillAmount = operationMain.progress;
             }
@@ -130,69 +526,21 @@ public class Omnipotent : MonoBehaviour
         LoadUI();
     }
 
-    void UnloadUI()
+    public void LoadNextScene(Constants.Scenes scene)
     {
-        GameplayHealthRadial = null;
-        GameplayHealthText = null;
+        LoadNextScene(scene.ToString());
     }
 
-    void LoadUI()
+    public void LoadNextScene(string scene)
     {
-        if (IsLoadingScene)
+        if (scene.Equals(Constants.Scenes.LevelAdjusted.ToString()))
         {
-
-        } 
-        else if(SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
-        {
-
+            SwitchScene(Constants.Scenes.TitleScreen);
         }
         else
         {
-            LoadGameplayUI();
+
         }
-    }
-
-    void LoadGameplayUI()
-    {
-        loadedUI = GameObject.Instantiate(GameplayCanvas);
-
-        GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
-        GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
-    }
-
-    void UpdateGameplayUI()
-    {
-
-        if (GameplayHealthRadial != null)
-        {
-            if (UIHealthMax != 0)
-            {
-                GameplayHealthRadial.fillAmount = (float)UIHealthCurrent / (float)UIHealthMax;
-            }
-        }
-        else
-        {
-            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
-        }
-
-
-        if (GameplayHealthText != null)
-        {
-            GameplayHealthText.text = UIHealthCurrent.ToString();
-        }
-        else
-        {
-            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
-        }
-    }
-
-    public int UIHealthMax;
-    public int UIHealthCurrent;
-
-    public void UIHealthUpdate(int max, int current)
-    {
-        UIHealthMax = max;
-        UIHealthCurrent = current;
     }
 
     /// <summary>
@@ -202,11 +550,12 @@ public class Omnipotent : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            StartCoroutine(LoadingAsync(Constants.Scenes.SebastianScene));
+            SwitchScene(Constants.Scenes.SebastianScene);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            StartCoroutine(LoadingAsync(Constants.Scenes.LevelAdjusted));
+            SwitchScene(Constants.Scenes.LevelAdjusted);
         }
     }
+    #endregion
 }

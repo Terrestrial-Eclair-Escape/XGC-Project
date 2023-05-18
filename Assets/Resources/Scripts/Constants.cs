@@ -9,6 +9,18 @@ public class Constants
 {
     public static string OmnipotentName = "_OMNIPOTENT";
 
+    public static Vector2 DefaultMousePos = new Vector2(-9999999, -9999999);
+
+    public enum MenuStates
+    {
+        None,
+        Pause,
+        Death,
+        Victory,
+        Title,
+        Settings
+    }
+
     public enum Inputs
     {
         Move,
@@ -17,6 +29,21 @@ public class Constants
         Jump,
         Interact,
     }
+    public enum UIInputs
+    {
+        Navigate,
+        Submit,
+        Cancel,
+        Point,
+        Click,
+        ScrollWheel,
+        MiddleClick,
+        RightClick,
+        TrackedDevicePosition,
+        TrackedDeviceOrientation,
+        Pause,
+    }
+
     public enum Timers
     {
         CoyoteTimer,
@@ -37,6 +64,8 @@ public class Constants
         Pickup,
         MainObjective,
         UILoadingFillBar,
+        UIButton,
+        Goal,
     }
 
     public enum Layers

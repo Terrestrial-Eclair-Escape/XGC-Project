@@ -7,6 +7,8 @@ TagManager:
   - Pickup
   - MainObjective
   - UILoadingFillBar
+  - UIButton
+  - Goal
   layers:
   - Default
   - TransparentFX
