@@ -9,6 +9,7 @@ TagManager:
   - UILoadingFillBar
   - UIButton
   - Goal
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
+  - Pickup
   - 
   - 
   - 

@@ -17,12 +17,13 @@ MonoBehaviour:
   AttackVoice: []
   AttackSfx: []
   TakeDamageVoice: []
-  TakeDamageSfx: []
-  DieVoice:
-  - {fileID: 8300000, guid: e91a56ce47a0b7545b20a0ab90048bd3, type: 3}
-  - {fileID: 8300000, guid: 08d1fd8651befaf45bf728c80b4a1802, type: 3}
+  TakeDamageSfx:
+  - {fileID: 8300000, guid: 099e3e8d525ee794e91c9b4c48aa310f, type: 3}
+  - {fileID: 8300000, guid: 0cf7d8e85e33e11448a9437a33a0bfde, type: 3}
+  DieVoice: []
   DieSfx:
-  - {fileID: 8300000, guid: 12f195f9d0aa8b5478734f489d8f95f9, type: 3}
+  - {fileID: 8300000, guid: 8f818f4d6f2212444b5f56cee022250d, type: 3}
+  - {fileID: 8300000, guid: d437c78de96674447b8e378f6681c4db, type: 3}
   PickupVoice: []
   PickupSfx: []
   ThrowVoice: []

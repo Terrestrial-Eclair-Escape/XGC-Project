@@ -28,7 +28,6 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     // Update is called once per frame
     void Update()
     {
-
         if (!HasDied)
         {
             AIUpdate();

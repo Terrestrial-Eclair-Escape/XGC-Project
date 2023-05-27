@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SensitivityHorizontal: 6
   SensitivityVertical: 4
-  CameraHeight: 0.5
+  CameraHeight: 1
+  CameraFOV: 70
   SlerpCameraPosition: 0.6
   SlerpParentPosition: 0.1
   SlerpParentJump: 0.07
   AngleMax: 60
   AngleMin: -40
-  DistMax: -10
+  DistMax: -7
   DistMin: -2

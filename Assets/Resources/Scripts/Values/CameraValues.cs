@@ -13,6 +13,9 @@ public class CameraValues : ScriptableObject
     [Tooltip("The height at which the camera is placed.")]
     public float CameraHeight = 1.5f;
 
+    [Tooltip("Camera field of view")]
+    public int CameraFOV = 60;
+
     [Tooltip("Position slerp."), Range(0, 1)]
     public float SlerpCameraPosition = 0.4f;
     [Tooltip("Position slerp."), Range(0, 1)]

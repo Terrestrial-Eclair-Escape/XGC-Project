@@ -17,7 +17,11 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private InputAction inputFire;
     private InputAction inputInteract;
 
-    private bool StageCleared;
+    void UIUpdate()
+    {
+        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        Omni.DisplayReticle(pickedUpObject != null);
+    }
 
     private void Awake()
     {
@@ -46,7 +50,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         {
             CharacterUpdate(
                 InputMove,
-                Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
+                Camera.main.ViewportPointToRay(Constants.HalfVector),
                 true
             );
         }
@@ -55,7 +59,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
             OnDead();
         }
 
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        UIUpdate();
     }
 
     private void LateUpdate()
@@ -130,35 +134,5 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         IsDead = true;
         Debug.Log($"{transform.name} DEAD");
         yield return null;
-    }
-
-    public IEnumerator OnStageCleared()
-    {
-        Omni.SetVictoryState();
-        StageCleared = true;
-        yield return new WaitForSecondsRealtime(2);
-        Omni.LoadNextScene(SceneManager.GetActiveScene().name);
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag(Constants.Tags.Goal.ToString()))
-        {
-            VictoryCheck();
-        }
-    }
-
-    void VictoryCheck()
-    {
-        if (!StageCleared)
-        {
-            if (pickedUpObject != null)
-            {
-                if (pickedUpObject.CompareTag(Constants.Tags.MainObjective.ToString()))
-                {
-                    StartCoroutine(OnStageCleared());
-                }
-            }
-        }
     }
 }

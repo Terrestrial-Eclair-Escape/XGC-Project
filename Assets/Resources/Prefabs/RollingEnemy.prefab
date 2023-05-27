@@ -9,9 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8920622513246061661}
-  - component: {fileID: 158109060604733607}
-  - component: {fileID: 4461995514442066366}
-  - component: {fileID: 7557692470996069594}
   m_Layer: 0
   m_Name: PlayerModelPos
   m_TagString: Untagged
@@ -35,45 +32,6 @@ Transform:
   m_Father: {fileID: 4867505358342067814}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &158109060604733607
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 578138725809272525}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.3, y: 2.1, z: 2.1}
-  m_Center: {x: 0, y: 1.5, z: 0}
---- !u!65 &4461995514442066366
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 578138725809272525}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.3, y: 1, z: 2.8}
-  m_Center: {x: 0, y: 1.5, z: 0}
---- !u!65 &7557692470996069594
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 578138725809272525}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.3, y: 2.8, z: 1}
-  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1 &4867505358342067810
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +47,7 @@ GameObject:
   - component: {fileID: 4867505358342067808}
   m_Layer: 0
   m_Name: RollingEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -141,6 +99,9 @@ MonoBehaviour:
   HasDied: 0
   variousTimers: []
   bufferTimers: []
+  healthCurrent: 0
+  Omni: {fileID: 0}
+  pickedUpObject: {fileID: 0}
   target: {fileID: 0}
   startPos: {x: 0, y: 0, z: 0}
   targetLastKnownLocation: {x: 0, y: 0, z: 0}
@@ -315,6 +276,7 @@ GameObject:
   - component: {fileID: 3107804963260546994}
   - component: {fileID: 7877262587542513509}
   - component: {fileID: 6795972324575230469}
+  - component: {fileID: 2848595445161118842}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -387,3 +349,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2848595445161118842
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231740751505881193}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}

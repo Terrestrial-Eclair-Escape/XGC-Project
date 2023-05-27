@@ -23,13 +23,13 @@ public class BaseCharacterMovement : MonoBehaviour
     public Transform characterModelMeshParent;
 
     RaycastHit hit;
-    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * .9f, Vector3.down, out hit, (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
+    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius, Vector3.down, out hit, (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public bool IsDead;               // character death has started
     [HideInInspector] public bool HasDied;              // should character death start?
-    [HideInInspector] public float[] variousTimers;   // list of variousTimers values (realistically only Jump is used)
+    [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public int healthCurrent;      // current health
     [HideInInspector] public Omnipotent Omni;
@@ -45,6 +45,7 @@ public class BaseCharacterMovement : MonoBehaviour
     private Vector3 moveDirGlobal;
     private float latestDamageImmunityBlinkTimerValue = -1;
     private Vector3 lastPos;
+    private Ray throwTarget;
 
     public void CharacterStart()
     {
@@ -62,9 +63,10 @@ public class BaseCharacterMovement : MonoBehaviour
         CharacterMove(moveDirGlobal);
     }
 
-    public void CharacterUpdate(Vector3 moveDir, Vector3 throwTarget, bool highlightPickup = false)
+    public void CharacterUpdate(Vector3 moveDir, Ray throwTarget, bool highlightPickup = false)
     {
         this.moveDirGlobal = moveDir;
+        this.throwTarget = throwTarget;
         
         CharacterFallOffRespawnDebug();
 
@@ -354,6 +356,8 @@ public class BaseCharacterMovement : MonoBehaviour
     void SelectPickup(GameObject pickup)
     {
         pickedUpObject = pickup;
+        pickedUpObject.transform.localScale /= sValues.PickedUpObjectScaleModifier;
+        pickedUpObject.GetComponent<Collider>().enabled = false;
         if (pickedUpObject != null)
         {
             moveSpeedModifierPickup = 1f / pickedUpObject.GetComponent<Rigidbody>().mass;
@@ -366,6 +370,8 @@ public class BaseCharacterMovement : MonoBehaviour
 
     void DeselectPickup()
     {
+        pickedUpObject.transform.localScale *= sValues.PickedUpObjectScaleModifier;
+        pickedUpObject.GetComponent<Collider>().enabled = true;
         pickedUpObject = null;
         moveSpeedModifierPickup = 1f;
     }
@@ -427,38 +433,15 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
-    private void ThrowObject(Vector3 throwTarget)
+    private void ThrowObject(Ray throwTarget)
     {
         if (bufferTimers[(int)Constants.Inputs.Fire] > 0)
         {
             if (pickedUpObject != null)
             {
-                Vector3 startPos = pickedUpObject.transform.position;
-                Vector3 target = Vector3.zero;
-                
-                /* aim at closest target according to center of screen (WIP)
-                float dist = -1;
+                Vector3 target = ThrowTargetPosition();
 
-                foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
-                {
-                    if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
-                    {
-                        continue;
-                    }
-
-                    float compareDist = Vector3.Distance(startPos, h.point);
-                    if (compareDist < dist || dist < 0)
-                    {
-                        dist = compareDist;
-                        target = hit.point;
-                    }
-                }*/
-
-                if (target == Vector3.zero)
-                {
-                    target = throwTarget; 
-                }
-                target -= startPos;
+                target -= pickupPosition.position;
 
                 Vector3 force = target.normalized;
                 force.y += 0.1f;
@@ -473,6 +456,41 @@ public class BaseCharacterMovement : MonoBehaviour
 
             bufferTimers[(int)Constants.Inputs.Fire] = 0;
         }
+    }
+
+    Vector3 ThrowTargetPosition()
+    {
+        Vector3 target = Vector3.zero;
+
+        /* aim at closest target according to center of screen (WIP)
+        float dist = -1;
+
+        foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
+        {
+            if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
+            {
+                continue;
+            }
+
+            float compareDist = Vector3.Distance(startPos, h.point);
+            if (compareDist < dist || dist < 0)
+            {
+                dist = compareDist;
+                target = hit.point;
+            }
+        }*/
+
+        RaycastHit hitThrow;
+        if (Physics.Raycast(throwTarget, out hitThrow, cValues.PickupThrowMaxDistance, 0 << ((int)Constants.Layers.IgnoreRaycast & (int)Constants.Layers.Pickup)))
+        {
+            target = hitThrow.point;
+        }
+        else
+        {
+            target = throwTarget.GetPoint(cValues.PickupThrowMaxDistance);
+        }
+
+        return target;
     }
 
     public GameObject GetClosestObjectOfType(bool highlight = false)
@@ -577,6 +595,7 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             HasDied = true;
 
+            SetAnimValue(Constants.AnimatorBooleans.IsDead, true);
             PlayAudio(Constants.CharacterAudioList.DieVoice);
         }
     }
@@ -649,7 +668,7 @@ public class BaseCharacterMovement : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private Color gizmoColor = new Color32(255, 0, 0, 100);
+    private Color gizmoColor = new Color32(255, 255, 0, 100);
 
     private void OnDrawGizmos()
     {
@@ -661,7 +680,7 @@ public class BaseCharacterMovement : MonoBehaviour
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);
 
-        Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * cValues.PickupThrowMaxDistance);
+        Gizmos.DrawRay(throwTarget);
     }
 #endif
 }

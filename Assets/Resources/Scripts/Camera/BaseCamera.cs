@@ -53,6 +53,7 @@ public class BaseCamera : MonoBehaviour
     private void LateUpdate()
     {
         ParentRotation();
+        CameraFOV();
     }
 
     /// <summary>
@@ -92,7 +93,7 @@ public class BaseCamera : MonoBehaviour
         if (useRay)
         {
             RaycastHit hit;
-            if (Physics.Raycast(player.transform.position, -(player.transform.position - transform.TransformPoint(slerpVector)), out hit, dist))
+            if (Physics.Raycast(player.transform.position, -(player.transform.position - transform.TransformPoint(slerpVector)), out hit, dist, 0 << (int)(Constants.Layers.IgnoreRaycast)))
             {
                 // smooth
                 //cam.position = Vector3.Slerp(cam.position, hit.point, cValues.SlerpParentPosition);
@@ -109,6 +110,11 @@ public class BaseCamera : MonoBehaviour
         {
             cam.localPosition = slerpVector;
         }
+    }
+
+    void CameraFOV()
+    {
+        camActual.GetComponent<Camera>().fieldOfView = cValues.CameraFOV;
     }
 
     float ClampAngle(float angle, float min, float max)

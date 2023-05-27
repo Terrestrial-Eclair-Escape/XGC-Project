@@ -54,11 +54,17 @@ public class Omnipotent : MonoBehaviour
         playerActions = new PlayerInputActions();
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.UIInputs));
         eventSys = this.GetComponent<EventSystem>();
+
+        titleIndex = TitleCanvas.gameObject.transform.Find(Constants.UIElements.TitleMenu.ToString()).GetSiblingIndex();
+        deathIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.DeathMenu.ToString()).GetSiblingIndex();
+        pauseIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.PauseMenu.ToString()).GetSiblingIndex();
+        victoryIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.VictoryMenu.ToString()).GetSiblingIndex();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        lastMousePos = inputNavigation.ReadValue<Vector2>();
         SwitchScene(Constants.Scenes.TitleScreen);
     }
 
@@ -90,8 +96,6 @@ public class Omnipotent : MonoBehaviour
 
             MenuControls();
         }
-
-        Debug.Log(menuValue);
 
         UpdateLastMousePos();
     }
@@ -376,23 +380,24 @@ public class Omnipotent : MonoBehaviour
             }
         }
 
-        if (optionName.Contains("Start"))
+
+        if (optionName.Equals(Constants.MenuOptions.Button_Start.ToString()))
         {
             SwitchScene(Constants.Scenes.LevelAdjusted);
         }
-        else if (optionName.Contains("Resume"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_Resume.ToString()))
         {
             ChangePauseState();
         }
-        else if (optionName.Contains("Restart"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_Restart.ToString()))
         {
             SwitchScene(SceneManager.GetActiveScene().name);
         }
-        else if (optionName.Contains("Title"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_ReturnToTitle.ToString()))
         {
             SwitchScene(Constants.Scenes.TitleScreen);
         }
-        else if (optionName.Contains("Quit"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_Quit.ToString()))
         {
             Application.Quit();
         }
@@ -558,4 +563,9 @@ public class Omnipotent : MonoBehaviour
         }
     }
     #endregion
+
+    public void DisplayReticle(bool hasObject)
+    {
+        loadedUI.transform.Find("Reticle").gameObject.SetActive(hasObject);
+    }
 }
