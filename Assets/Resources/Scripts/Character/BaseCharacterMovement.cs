@@ -12,7 +12,6 @@ public class BaseCharacterMovement : MonoBehaviour
 {
     public CharacterValues cValues;     // character values
     public CharacterAudio cAudio;
-    public CharacterAnimations cAnims;
     public SettingsValues sValues;      // setting values
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
@@ -32,6 +31,7 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public int healthCurrent;      // current health
+    [HideInInspector] public float moveSpeedModifierPublic = 1;     
     [HideInInspector] public Omnipotent Omni;
     [HideInInspector] public GameObject pickedUpObject;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
@@ -53,7 +53,7 @@ public class BaseCharacterMovement : MonoBehaviour
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.Inputs));
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
-        Omni = GameObject.Find(Constants.OmnipotentName).GetComponent<Omnipotent>();
+        Omni = GameObject.Find(Constants.OmnipotentName)?.GetComponent<Omnipotent>() ?? null;
     }
 
     public void CharacterFixedUpdate()
@@ -154,9 +154,9 @@ public class BaseCharacterMovement : MonoBehaviour
         return null;
     }
 
-    void SetAnimValue(Constants.AnimatorBooleans animat, object value)
+    public void SetAnimValue(Constants.AnimatorBooleans animat, object value)
     {
-        if (anim != null)
+        if (anim != null && !anim.IsUnityNull())
         {
             if (value is bool)
             {
@@ -173,11 +173,13 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
-    void SetMaxAnimSpeed(float speed)
+    void SetAnimSpeed(float speed, int max = -999)
     {
-        if(anim != null)
+        if(anim != null && !anim.IsUnityNull())
         {
-            if (anim.speed > speed)
+            anim.speed = speed;
+
+            if (max != -999 && anim.speed > speed)
             {
                 anim.speed = speed;
             }
@@ -244,7 +246,7 @@ public class BaseCharacterMovement : MonoBehaviour
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
             //                              vvvv
-            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup);
+            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup * moveSpeedModifierPublic);
         }
 
         // apply extra gravity values for more satisfying jump arc/fall speed
@@ -259,20 +261,19 @@ public class BaseCharacterMovement : MonoBehaviour
 
             if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.StickDeadZone)
             {
-                anim.speed = 1;
+                SetAnimSpeed(1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
             else if (currentSpeed > maxSpeed * sValues.AnimationThresholdRun)
             {
-                anim.speed = sValues.AnimationThresholdRun + moveDir.magnitude * (1 - sValues.AnimationThresholdRun);
+                SetAnimSpeed(sValues.AnimationThresholdRun + moveDir.magnitude * (1 - sValues.AnimationThresholdRun));
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, true);
             }
             else
             {
-                anim.speed = 0.5f + moveDir.magnitude;
-                SetMaxAnimSpeed(1);
+                SetAnimSpeed(0.5f + moveDir.magnitude, 1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
@@ -446,7 +447,8 @@ public class BaseCharacterMovement : MonoBehaviour
                 Vector3 force = target.normalized;
                 force.y += 0.1f;
 
-                // TODO: Decide on velocity or AddForce
+                // reset velocity before applying new
+                pickedUpObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 pickedUpObject.GetComponent<Rigidbody>().AddForce(force * cValues.PickupForce, ForceMode.Impulse);
                 DeselectPickup();
 

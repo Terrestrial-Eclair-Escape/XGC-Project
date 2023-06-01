@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd1bfc08054e29b4eae53863211a4e99, type: 3}
+  m_Name: AudioGingerbreadEnemy
+  m_EditorClassIdentifier: 
+  JumpVoice: []
+  JumpSfx: []
+  AttackVoice: []
+  AttackSfx: []
+  TakeDamageVoice: []
+  TakeDamageSfx:
+  - {fileID: 8300000, guid: 099e3e8d525ee794e91c9b4c48aa310f, type: 3}
+  - {fileID: 8300000, guid: 0cf7d8e85e33e11448a9437a33a0bfde, type: 3}
+  DieVoice: []
+  DieSfx:
+  - {fileID: 8300000, guid: 8f818f4d6f2212444b5f56cee022250d, type: 3}
+  - {fileID: 8300000, guid: d437c78de96674447b8e378f6681c4db, type: 3}
+  PickupVoice: []
+  PickupSfx: []
+  ThrowVoice: []
+  ThrowSfx: []
+  DropVoice: []
+  DropSfx: []

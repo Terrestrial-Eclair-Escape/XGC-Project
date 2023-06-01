@@ -71,6 +71,7 @@ public class Constants
         Invincibility,
         Searching,
         AIUniqueAttack,
+        AICooldown,
     }
 
     public enum Tags
@@ -147,5 +148,6 @@ public class Constants
         IsRunning,
         IsFalling,
         IsDead,
+        IsMounted,
     }
 }
