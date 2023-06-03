@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca80cbb3c7b0e0743b176c0adfd39849, type: 3}
-  m_Name: StatsMountableEnemy
+  m_Name: StatsGingerbreadEnemy
   m_EditorClassIdentifier: 
-  HealthMax: 5
+  HealthMax: 2
   HealthAttack: 1
   HealthDamageImmunity: 0.2
-  MoveSpeed: 4
-  MoveAcceleration: 0.42
-  MoveDecceleration: 0.26
-  MoveTurnAngleSlow: 6
-  MoveTurnAngleFast: 1
+  MoveSpeed: 2
+  MoveAcceleration: 0.18
+  MoveDecceleration: 0.16
+  MoveTurnAngleSlow: 15
+  MoveTurnAngleFast: 5
   JumpAmount: 1
-  JumpSpeed: 20
-  JumpGravityAscend: 20
-  JumpGravityDescend: 30
+  JumpSpeed: 10
+  JumpGravityAscend: 10
+  JumpGravityDescend: 15
   PickupRadius: 3
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 10
   ExtraValueList:
-  - Purpose: JumpSpeedModifier
+  - Purpose: JumpModifier
     Value: 2
   - Purpose: ChargeTime
-    Value: 2
-  - Purpose: DistToTarget
-    Value: 10
+    Value: 2.5
+  - Purpose: MaxRotSpeed
+    Value: 20
   - Purpose: AttackCooldown
-    Value: 4
+    Value: 3

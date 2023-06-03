@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d06649733d10a0f4999956cb48d1b8d7, type: 3}
-  m_Name: AIMountableEnemy
+  m_Name: AIGingerbreadEnemy
   m_EditorClassIdentifier: 
-  DistanceToStartPos: 5
-  DistanceToTarget: 17
-  DistanceToSearch: 110
-  TimeToStopSearch: 20
-  TimeToWakeUp: 1
-  TimeToSleep: 2
+  DistanceToStartPos: 10
+  DistanceToTarget: 15
+  DistanceToSearch: 40
+  TimeToStopSearch: 10
+  TimeToWakeUp: 2
+  TimeToSleep: 1

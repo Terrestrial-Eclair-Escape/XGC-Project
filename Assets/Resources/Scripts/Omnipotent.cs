@@ -48,12 +48,17 @@ public class Omnipotent : MonoBehaviour
     private int lastMenuValue;
     private Vector2 lastMousePos = Constants.DefaultMousePos;
 
+    private AudioSource aSource;
+    public AudioClip MenuSoundNavigate;
+    public AudioClip MenuSoundConfirm;
+
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
         playerActions = new PlayerInputActions();
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.UIInputs));
         eventSys = this.GetComponent<EventSystem>();
+        aSource = this.GetComponent<AudioSource>();
 
         titleIndex = TitleCanvas.gameObject.transform.Find(Constants.UIElements.TitleMenu.ToString()).GetSiblingIndex();
         deathIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.DeathMenu.ToString()).GetSiblingIndex();
@@ -235,6 +240,7 @@ public class Omnipotent : MonoBehaviour
     {
         if (menuState == Constants.MenuStates.Pause || menuState == Constants.MenuStates.None)
         {
+            aSource.PlayOneShot(MenuSoundConfirm);
             IsPaused = !IsPaused;
             loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(IsPaused);
 
@@ -318,6 +324,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
                 else if (nav.y < 0)
@@ -336,6 +343,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
             }
@@ -380,6 +388,14 @@ public class Omnipotent : MonoBehaviour
             }
         }
 
+        if (optionName.Equals(""))
+        {
+
+        }
+        else
+        {
+            aSource.PlayOneShot(MenuSoundConfirm);
+        }
 
         if (optionName.Equals(Constants.MenuOptions.Button_Start.ToString()))
         {
