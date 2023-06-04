@@ -24,7 +24,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     void UIUpdate()
     {
         Omni?.UIHealthUpdate(cValues.HealthMax, healthCurrent);
-        Omni?.DisplayReticle(pickedUpObject != null);
+        Omni?.UpdateReticle(pickedUpObject != null, ThrowTargetPosition().Item2);
     }
 
     private void Awake()
@@ -44,6 +44,12 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         if (!HasDied)
         {
             CharacterFixedUpdate();
+
+            if(lastFramePos.Count > QueueCount)
+            {
+                lastFramePosObject.transform.position = lastFramePos.Dequeue();
+            }
+            lastFramePos.Enqueue(transform.position);
         }
     }
 
@@ -52,18 +58,14 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     {
         if (!HasDied)
         {
-            if(lastFramePos.Count > QueueCount)
-            {
-                lastFramePosObject.transform.position = lastFramePos.Dequeue();
-            }
 
             CharacterUpdate(
                 InputMove,
+                Camera.main.transform.forward,
                 Camera.main.ViewportPointToRay(Constants.HalfVector),
                 true
             );
 
-            lastFramePos.Enqueue(transform.position);
         }
         else if (!IsDead)
         {

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8920622513246061661}
   m_Layer: 0
   m_Name: PlayerModelPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,7 +83,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cValues: {fileID: 11400000, guid: ce34b3a3a45960c4e8bbfed006226edf, type: 2}
   cAudio: {fileID: 11400000, guid: de0a6ed6f941e2345b6d0295053e4c59, type: 2}
-  cAnims: {fileID: 0}
   sValues: {fileID: 11400000, guid: 0fde304b32d07374bb6858df582f6809, type: 2}
   cCollider: {fileID: 4867505358342067808}
   rb: {fileID: -5514557104833386410}
@@ -100,6 +99,7 @@ MonoBehaviour:
   variousTimers: []
   bufferTimers: []
   healthCurrent: 0
+  moveSpeedModifierPublic: 1
   Omni: {fileID: 0}
   pickedUpObject: {fileID: 0}
   target: {fileID: 0}
@@ -107,6 +107,10 @@ MonoBehaviour:
   targetLastKnownLocation: {x: 0, y: 0, z: 0}
   IsAggro: 0
   IsAwake: 0
+  IsMounted: 0
+  IsAttacking: 0
+  childObject: {fileID: 0}
+  parentObject: {fileID: 0}
   aValues: {fileID: 11400000, guid: 549acc63b9b087343b3d0066778269b4, type: 2}
 --- !u!54 &-5514557104833386410
 Rigidbody:
@@ -243,9 +247,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4867505358900866912}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: PickupPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -279,7 +283,7 @@ GameObject:
   - component: {fileID: 2848595445161118842}
   m_Layer: 0
   m_Name: Cylinder
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

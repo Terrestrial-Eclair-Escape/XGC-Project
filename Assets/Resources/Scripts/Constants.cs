@@ -88,6 +88,8 @@ public class Constants
         UILoadingFillBar,
         UIButton,
         Goal,
+        Enemy,
+        PlayerPositionTarget,
     }
 
     public enum Layers
