@@ -306,7 +306,7 @@ public class Omnipotent : MonoBehaviour
 
             Vector2 nav = inputNavigation.ReadValue<Vector2>();
 
-            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0)
+            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0 && menuItems > 0)
             {
                 if (nav.y > 0)
                 {
@@ -421,6 +421,8 @@ public class Omnipotent : MonoBehaviour
 
     void UpdateGameplayUI()
     {
+        Cursor.lockState = (menuState != (Constants.MenuStates.None)) ? CursorLockMode.Locked : CursorLockMode.None;
+
         if (GameplayHealthRadial != null)
         {
             if (UIHealthMax != 0)
@@ -580,8 +582,10 @@ public class Omnipotent : MonoBehaviour
     }
     #endregion
 
-    public void DisplayReticle(bool hasObject)
+    public void UpdateReticle(bool hasObject, bool aimTargetIsEnemy)
     {
         loadedUI.transform.Find("Reticle").gameObject.SetActive(hasObject);
+
+        loadedUI.transform.Find("Reticle").GetComponent<Image>().color = (aimTargetIsEnemy) ? Color.red : Color.white;
     }
 }

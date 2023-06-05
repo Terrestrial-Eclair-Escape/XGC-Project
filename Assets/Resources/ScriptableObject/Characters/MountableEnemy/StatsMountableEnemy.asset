@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HealthMax: 5
   HealthAttack: 1
-  HealthDamageImmunity: 0.2
+  HealthDamageImmunity: 0.5
   MoveSpeed: 4
   MoveAcceleration: 0.42
   MoveDecceleration: 0.26
@@ -28,6 +28,7 @@ MonoBehaviour:
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 10
+  KnockbackForce: 20
   ExtraValueList:
   - Purpose: JumpSpeedModifier
     Value: 2

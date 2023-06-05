@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca80cbb3c7b0e0743b176c0adfd39849, type: 3}
   m_Name: StatsGingerbreadEnemy
   m_EditorClassIdentifier: 
-  HealthMax: 2
+  HealthMax: 3
   HealthAttack: 1
-  HealthDamageImmunity: 0.2
+  HealthDamageImmunity: 1
   MoveSpeed: 2
   MoveAcceleration: 0.18
   MoveDecceleration: 0.16
@@ -28,6 +28,7 @@ MonoBehaviour:
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 10
+  KnockbackForce: 25
   ExtraValueList:
   - Purpose: JumpModifier
     Value: 2

@@ -116,7 +116,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cValues: {fileID: 11400000, guid: 9644e170698f9fb46b54088fd42a3135, type: 2}
   cAudio: {fileID: 11400000, guid: 7a1dd77a84a24ba4382f423fe554bca1, type: 2}
-  cAnims: {fileID: 11400000, guid: 215205965520c2d4aaaaacb52157d72e, type: 2}
   sValues: {fileID: 11400000, guid: 0fde304b32d07374bb6858df582f6809, type: 2}
   cCollider: {fileID: 3537304743330589122}
   rb: {fileID: 3537304743330589134}
@@ -137,6 +136,7 @@ MonoBehaviour:
   Omni: {fileID: 0}
   pickedUpObject: {fileID: 0}
   lastFramePosObject: {fileID: 7373363180805636536}
+  QueueCount: 5
 --- !u!54 &3537304743330589134
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -286,9 +286,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1488070379487401850}
+  - component: {fileID: 7123963387275051890}
   m_Layer: 0
-  m_Name: LastPos
-  m_TagString: Untagged
+  m_Name: TargetLastPos
+  m_TagString: PlayerPositionTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,6 +309,19 @@ Transform:
   m_Father: {fileID: 3537304743330589135}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &7123963387275051890
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7373363180805636536}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1827225608190108101
 PrefabInstance:
   m_ObjectHideFlags: 0

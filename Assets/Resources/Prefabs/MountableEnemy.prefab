@@ -83,7 +83,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cValues: {fileID: 11400000, guid: ea02f4b373abfd24f9f6e539cd6fe28a, type: 2}
   cAudio: {fileID: 11400000, guid: 1c3277e104863e24e958f65ef73bf1e1, type: 2}
-  cAnims: {fileID: 0}
   sValues: {fileID: 11400000, guid: 0fde304b32d07374bb6858df582f6809, type: 2}
   cCollider: {fileID: 2235373658850476871}
   rb: {fileID: 8066269834948312433}
@@ -264,9 +263,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2235373659417934407}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: PickupPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -297,7 +296,7 @@ GameObject:
   - component: {fileID: 2829690772165759354}
   m_Layer: 0
   m_Name: CharacterModelPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -328,6 +327,10 @@ PrefabInstance:
     - target: {fileID: 1558977463977090961, guid: 6570870ee35fc754c94b53c8324b69ee, type: 3}
       propertyPath: m_Name
       value: Rat_lp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1558977463977090961, guid: 6570870ee35fc754c94b53c8324b69ee, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 2227391836589245739, guid: 6570870ee35fc754c94b53c8324b69ee, type: 3}
       propertyPath: m_RootOrder

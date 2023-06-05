@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3165611226888474083}
   m_Layer: 0
   m_Name: CharacterModelPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,7 +83,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cValues: {fileID: 11400000, guid: ecbe9a1fb75e7334daffad9715a4c214, type: 2}
   cAudio: {fileID: 11400000, guid: 49b88dd782609204fb0aed5c23a49b70, type: 2}
-  cAnims: {fileID: 11400000, guid: 215205965520c2d4aaaaacb52157d72e, type: 2}
   sValues: {fileID: 11400000, guid: 0fde304b32d07374bb6858df582f6809, type: 2}
   cCollider: {fileID: 3165611226890848920}
   rb: {fileID: 3165611226890848926}
@@ -250,9 +249,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3165611227665277596}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: PickupPos
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -327,8 +326,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 4286058037654104856, guid: 78d6e1ad9c143b54c85fccb0540f4782, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 78d6e1ad9c143b54c85fccb0540f4782, type: 3}
+--- !u!1 &4076310973309564730 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4286058037654104856, guid: 78d6e1ad9c143b54c85fccb0540f4782, type: 3}
+  m_PrefabInstance: {fileID: 282271194981342242}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &8385396047404345622
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4076310973309564730}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.0015, y: 0.0005, z: 0.015502373}
+  m_Center: {x: -1.8921453e-10, y: -0.0000000011109151, z: 0.007761195}
 --- !u!1001 &7491420574826539828
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -336,6 +357,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3165611226888474083}
     m_Modifications:
+    - target: {fileID: -9070493210130169274, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -380,13 +405,69 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7676646301112881978, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -7657966619581158213, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -7360747449169001873, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -6370085079684087283, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -5195048882033904264, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -3542885339558904099, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -3086436065929644917, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: -1957399741981791367, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c6a38b16b208c414c8131b6f2fb23162, type: 2}
+    - target: {fileID: -290750445479886849, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: -203856693384778745, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 9171100556185337, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
       propertyPath: m_Name
       value: GingerbreadMan_lp (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1082271958561512970, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715566404302941441, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 3135921509060577837, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e738ff52a96ded4c85589209fcb462b, type: 3}
@@ -422,8 +503,7 @@ Animator:
     'mixamorig:LeftHandIndex1'\n\tTransform 'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform
     'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tTransform 'mixamorig:LeftShoulder'\n\tTransform
     'mixamorig:RightHandIndex3'\n\tTransform 'mixamorig:RightFoot'\n\tand more ...\n\tFrom
-    animation clip 'Capoeira'\n\tFrom animation clip 'Capoeira'\n\tFrom animation
-    clip 'Zombie Idle'\n\tFrom animation clip 'Dying'"
+    animation clip 'Zombie Idle'\n\tFrom animation clip 'Dying'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0

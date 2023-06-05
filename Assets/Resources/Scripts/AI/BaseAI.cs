@@ -20,7 +20,7 @@ public class BaseAI : BaseCharacterMovement
 
     public void GetTarget()
     {
-        target = GameObject.FindGameObjectWithTag(Constants.Tags.Player.ToString());
+        target = GameObject.FindGameObjectWithTag(Constants.Tags.PlayerPositionTarget.ToString());
     }
 
     public bool GetTargetLastKnownLocation()
@@ -136,17 +136,12 @@ public class BaseAI : BaseCharacterMovement
         SetAnimValue(Constants.AnimatorBooleans.IsMounted, true);
     }
 
-    public void KnockBack(Vector3 normal, float velocity)
+    public void AIKnockBack(Vector3 normal, float velocity)
     {
-        rb.isKinematic = false;
-        SetAnimValue(Constants.AnimatorBooleans.IsMounted, false);
         parentObject = null;
         IsMounted = false;
-        if (normal.y < 0)
-        {
-            normal.y -= normal.y * 2;
-        }
+        SetAnimValue(Constants.AnimatorBooleans.IsMounted, false);
 
-        rb.AddForce(normal * velocity * 100);
+        KnockBack(normal, velocity);
     }
 }

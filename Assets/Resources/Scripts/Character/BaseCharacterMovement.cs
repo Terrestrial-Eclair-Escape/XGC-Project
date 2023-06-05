@@ -31,7 +31,7 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public int healthCurrent;      // current health
-    [HideInInspector] public float moveSpeedModifierPublic = 1;     
+    [HideInInspector] public float moveSpeedModifierPublic = 1;
     [HideInInspector] public Omnipotent Omni;
     [HideInInspector] public GameObject pickedUpObject;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
@@ -46,6 +46,8 @@ public class BaseCharacterMovement : MonoBehaviour
     private float latestDamageImmunityBlinkTimerValue = -1;
     private Vector3 lastPos;
     private Ray throwTarget;
+    private Vector3 forwardDir;
+
 
     public void CharacterStart()
     {
@@ -63,10 +65,12 @@ public class BaseCharacterMovement : MonoBehaviour
         CharacterMove(moveDirGlobal);
     }
 
-    public void CharacterUpdate(Vector3 moveDir, Ray throwTarget, bool highlightPickup = false)
+    public void CharacterUpdate(Vector3 moveDir, Vector3 forwardDir, Ray throwTarget, bool highlightPickup = false)
     {
         this.moveDirGlobal = moveDir;
         this.throwTarget = throwTarget;
+        this.forwardDir = forwardDir;
+        this.forwardDir.y = 0;
         
         CharacterFallOffRespawnDebug();
 
@@ -372,6 +376,7 @@ public class BaseCharacterMovement : MonoBehaviour
     void DeselectPickup()
     {
         pickedUpObject.transform.localScale *= sValues.PickedUpObjectScaleModifier;
+        pickedUpObject.transform.position = transform.position + forwardDir * (1 + (pickedUpObject.transform.localScale.x / 2));
         pickedUpObject.GetComponent<Collider>().enabled = true;
         pickedUpObject = null;
         moveSpeedModifierPickup = 1f;
@@ -440,7 +445,8 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             if (pickedUpObject != null)
             {
-                Vector3 target = ThrowTargetPosition();
+                (Vector3, bool) targetInfo = ThrowTargetPosition();
+                Vector3 target = targetInfo.Item1;
 
                 target -= pickupPosition.position;
 
@@ -460,7 +466,7 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
-    Vector3 ThrowTargetPosition()
+    public (Vector3, bool) ThrowTargetPosition()
     {
         Vector3 target = Vector3.zero;
 
@@ -481,9 +487,8 @@ public class BaseCharacterMovement : MonoBehaviour
                 target = hit.point;
             }
         }*/
-
         RaycastHit hitThrow;
-        if (Physics.Raycast(throwTarget, out hitThrow, cValues.PickupThrowMaxDistance, 0 << ((int)Constants.Layers.IgnoreRaycast & (int)Constants.Layers.Pickup)))
+        if (Physics.Raycast(throwTarget, out hitThrow, cValues.PickupThrowMaxDistance))
         {
             target = hitThrow.point;
         }
@@ -492,7 +497,7 @@ public class BaseCharacterMovement : MonoBehaviour
             target = throwTarget.GetPoint(cValues.PickupThrowMaxDistance);
         }
 
-        return target;
+        return (target, hitThrow.collider != null && hitThrow.collider.tag.Equals(Constants.Tags.Enemy.ToString()));
     }
 
     public GameObject GetClosestObjectOfType(bool highlight = false)
@@ -562,6 +567,24 @@ public class BaseCharacterMovement : MonoBehaviour
                 PlayAudio(Constants.CharacterAudioList.TakeDamageSfx);
             }
         }
+    }
+
+    public void OnHit((int damage, Vector3 normal, float velocity) info)
+    {
+        TakeDamage(info.damage);
+        KnockBack(info.normal, info.velocity);
+    }
+
+    public void KnockBack(Vector3 normal, float velocity)
+    {
+        rb.isKinematic = false;
+
+        if (normal.y < 0)
+        {
+            normal.y -= normal.y * 2;
+        }
+
+        rb.AddForce(normal * velocity * cValues.KnockbackForce);
     }
 
     /// <summary>
@@ -681,8 +704,6 @@ public class BaseCharacterMovement : MonoBehaviour
 
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);
-
-        Gizmos.DrawRay(throwTarget);
     }
 #endif
 }
