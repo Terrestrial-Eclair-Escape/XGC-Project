@@ -27,6 +27,7 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public bool IsDead;               // character death has started
+    [HideInInspector] public bool IsInvincible;
     [HideInInspector] public bool HasDied;              // should character death start?
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
@@ -47,6 +48,7 @@ public class BaseCharacterMovement : MonoBehaviour
     private Vector3 lastPos;
     private Ray throwTarget;
     private Vector3 forwardDir;
+    private Vector3 dropOffPosition;
 
 
     public void CharacterStart()
@@ -373,10 +375,15 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    Vector3 GetDropOffPosition()
+    {
+        return new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z) + forwardDir * (1 + (pickedUpObject.transform.localScale.x / 2));
+    }
+
     void DeselectPickup()
     {
         pickedUpObject.transform.localScale *= sValues.PickedUpObjectScaleModifier;
-        pickedUpObject.transform.position = transform.position + forwardDir * (1 + (pickedUpObject.transform.localScale.x / 2));
+        pickedUpObject.transform.position = GetDropOffPosition();
         pickedUpObject.GetComponent<Collider>().enabled = true;
         pickedUpObject = null;
         moveSpeedModifierPickup = 1f;
@@ -448,7 +455,8 @@ public class BaseCharacterMovement : MonoBehaviour
                 (Vector3, bool) targetInfo = ThrowTargetPosition();
                 Vector3 target = targetInfo.Item1;
 
-                target -= pickupPosition.position;
+                dropOffPosition = GetDropOffPosition();
+                target -= dropOffPosition;
 
                 Vector3 force = target.normalized;
                 force.y += 0.1f;
@@ -468,36 +476,24 @@ public class BaseCharacterMovement : MonoBehaviour
 
     public (Vector3, bool) ThrowTargetPosition()
     {
-        Vector3 target = Vector3.zero;
+        Vector3 target = Constants.InvalidVector3;
+        bool targetEnemy = false;
 
-        /* aim at closest target according to center of screen (WIP)
-        float dist = -1;
-
-        foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
+        foreach(RaycastHit h in Physics.RaycastAll(throwTarget, cValues.PickupThrowMaxDistance))
         {
-            if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
+            if (h.collider.tag.CompareTo(Constants.Tags.Enemy.ToString()) == 0)
             {
-                continue;
+                target = h.point; 
+                targetEnemy = true;
+                break;
             }
-
-            float compareDist = Vector3.Distance(startPos, h.point);
-            if (compareDist < dist || dist < 0)
-            {
-                dist = compareDist;
-                target = hit.point;
-            }
-        }*/
-        RaycastHit hitThrow;
-        if (Physics.Raycast(throwTarget, out hitThrow, cValues.PickupThrowMaxDistance))
-        {
-            target = hitThrow.point;
         }
-        else
+        if(target == Constants.InvalidVector3)
         {
             target = throwTarget.GetPoint(cValues.PickupThrowMaxDistance);
         }
 
-        return (target, hitThrow.collider != null && hitThrow.collider.tag.Equals(Constants.Tags.Enemy.ToString()));
+        return (target, targetEnemy);
     }
 
     public GameObject GetClosestObjectOfType(bool highlight = false)
@@ -543,7 +539,7 @@ public class BaseCharacterMovement : MonoBehaviour
     #region Damage
     public void TakeDamage(int damage)
     {
-        if (variousTimers[(int)Constants.Timers.Invincibility] <= 0)
+        if (!IsInvincible && variousTimers[(int)Constants.Timers.Invincibility] <= 0)
         {
             healthCurrent -= damage;
 
@@ -607,6 +603,12 @@ public class BaseCharacterMovement : MonoBehaviour
                 if (r != null)
                 {
                     r.enabled = (blinkState == 1) ? !r.enabled : true;
+                }
+
+                SkinnedMeshRenderer sr = child.GetComponent<SkinnedMeshRenderer>();
+                if (sr != null)
+                {
+                    sr.enabled = (blinkState == 1) ? !sr.enabled : true;
                 }
             }
         }

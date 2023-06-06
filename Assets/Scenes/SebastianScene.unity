@@ -138,8 +138,7 @@ PrefabInstance:
         'mixamorig:LeftHandIndex1'\n\tTransform 'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform
         'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tTransform 'mixamorig:LeftShoulder'\n\tTransform
         'mixamorig:RightHandIndex3'\n\tTransform 'mixamorig:RightFoot'\n\tand more
-        ...\n\tFrom animation clip 'Capoeira'\n\tFrom animation clip 'Capoeira'\n\tFrom
-        animation clip 'Zombie Idle'\n\tFrom animation clip 'Dying'"
+        ...\n\tFrom animation clip 'Zombie Idle'\n\tFrom animation clip 'Dying'"
       objectReference: {fileID: 0}
     - target: {fileID: 3165611226890848923, guid: cc9b9ad5222ef8b4a9c69c41f49f0644, type: 3}
       propertyPath: m_Name

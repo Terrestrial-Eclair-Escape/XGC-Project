@@ -64,7 +64,8 @@ public class BaseCamera : MonoBehaviour
     void ParentRotation()
     {
         Vector2 input = inputLook.ReadValue<Vector2>();
-        if(lastMousePos != Input.mousePosition)
+        Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        if (mouseInput != Vector2.zero)
         {
             input /= 10;
         }

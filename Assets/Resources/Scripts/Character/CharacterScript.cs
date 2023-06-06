@@ -19,7 +19,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
 
     public GameObject lastFramePosObject;
     private Queue<Vector3> lastFramePos = new Queue<Vector3>();
-    public int QueueCount = 5;
+    public int positionQueueCount = 5;
 
     void UIUpdate()
     {
@@ -45,7 +45,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         {
             CharacterFixedUpdate();
 
-            if(lastFramePos.Count > QueueCount)
+            if(lastFramePos.Count > positionQueueCount)
             {
                 lastFramePosObject.transform.position = lastFramePos.Dequeue();
             }

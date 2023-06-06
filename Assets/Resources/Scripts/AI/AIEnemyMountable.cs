@@ -170,8 +170,8 @@ public class AIEnemyMountable : BaseAI, CharacterInterface, AIInterface
     public IEnumerator Dying()
     {
         IsDead = true;
-        /*float startY = transform.position.y;
         float endY = 2;
+        /*float startY = transform.position.y;
         rb.isKinematic = true;
 
         while (audioSource.isPlaying)
@@ -183,7 +183,13 @@ public class AIEnemyMountable : BaseAI, CharacterInterface, AIInterface
 
         ParticleSystem particles = GameObject.Instantiate(Resources.Load<ParticleSystem>("Particles/DeathRollingEnemy"), transform.position, Quaternion.identity);
         particles.GetComponent<AudioSource>().PlayOneShot(GetAudio(Constants.CharacterAudioList.DieSfx));*/
-        yield return null;
+
+        while (audioSource.isPlaying)
+        {
+            characterModelPosition.eulerAngles += new Vector3((endY) * Time.deltaTime, 0, 0);
+            endY *= 0.95f;
+            yield return null;
+        }
         Destroy(this.gameObject);
     }
 
