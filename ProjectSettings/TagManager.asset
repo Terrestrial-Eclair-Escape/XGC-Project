@@ -3,21 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Pickup
-  - MainObjective
-  - UILoadingFillBar
-  - UIButton
-  - Goal
-  - Enemy
+  tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - 
   - Water
   - UI
-  - Pickup
+  - 
   - 
   - 
   - 
