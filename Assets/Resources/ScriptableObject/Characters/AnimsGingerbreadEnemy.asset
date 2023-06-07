@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6558e8574cd801440bd0bb66b6d48df5, type: 3}
-  m_Name: AnimsAlien
+  m_Name: AnimsGingerbreadEnemy
   m_EditorClassIdentifier: 
   Idle: {fileID: -203655887218126122, guid: ed098f4f70194b649ab9c8098149f215, type: 3}
   Walk: {fileID: -203655887218126122, guid: 16cd7f7e4bdc5f548b4edacba8a08986, type: 3}

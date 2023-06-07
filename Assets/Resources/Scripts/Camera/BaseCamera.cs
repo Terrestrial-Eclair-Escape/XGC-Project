@@ -15,6 +15,8 @@ public class BaseCamera : MonoBehaviour
     private Vector3 camStartPos;
     [SerializeField] bool useRay;
 
+    private Vector3 lastMousePos;
+
     private void Awake()
     {
         playerActions = new PlayerInputActions();
@@ -62,10 +64,17 @@ public class BaseCamera : MonoBehaviour
     void ParentRotation()
     {
         Vector2 input = inputLook.ReadValue<Vector2>();
+        Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        if (mouseInput != Vector2.zero)
+        {
+            input /= 10;
+        }
 
         // clamp camera rotation
         transform.eulerAngles += new Vector3(-input.y * cValues.SensitivityVertical, input.x * cValues.SensitivityHorizontal, 0);
         transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(ClampAngle(transform.eulerAngles.x, cValues.AngleMin, cValues.AngleMax), transform.eulerAngles.y, 0), 0.5f);
+
+        lastMousePos = Input.mousePosition;
     }
 
     // Set position of parent object (at player position).

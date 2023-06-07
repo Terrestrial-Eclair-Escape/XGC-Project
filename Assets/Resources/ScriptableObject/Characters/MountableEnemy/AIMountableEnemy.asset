@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d06649733d10a0f4999956cb48d1b8d7, type: 3}
   m_Name: AIMountableEnemy
   m_EditorClassIdentifier: 
-  DistanceToStartPos: 1
-  DistanceToTarget: 15
-  DistanceToSearch: 100
+  DistanceToStartPos: 5
+  DistanceToTarget: 17
+  DistanceToSearch: 110
   TimeToStopSearch: 20
-  TimeToWakeUp: 2
+  TimeToWakeUp: 1
   TimeToSleep: 2

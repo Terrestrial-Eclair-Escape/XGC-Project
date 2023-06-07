@@ -12,7 +12,6 @@ public class BaseCharacterMovement : MonoBehaviour
 {
     public CharacterValues cValues;     // character values
     public CharacterAudio cAudio;
-    public CharacterAnimations cAnims;
     public SettingsValues sValues;      // setting values
     public CapsuleCollider cCollider;   // capsule collider
     public Rigidbody rb;                // rigidbody
@@ -28,10 +27,12 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public bool IsDead;               // character death has started
+    [HideInInspector] public bool IsInvincible;
     [HideInInspector] public bool HasDied;              // should character death start?
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
     [HideInInspector] public int healthCurrent;      // current health
+    [HideInInspector] public float moveSpeedModifierPublic = 1;
     [HideInInspector] public Omnipotent Omni;
     [HideInInspector] public GameObject pickedUpObject;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
@@ -46,6 +47,9 @@ public class BaseCharacterMovement : MonoBehaviour
     private float latestDamageImmunityBlinkTimerValue = -1;
     private Vector3 lastPos;
     private Ray throwTarget;
+    private Vector3 forwardDir;
+    private Vector3 dropOffPosition;
+
 
     public void CharacterStart()
     {
@@ -53,7 +57,7 @@ public class BaseCharacterMovement : MonoBehaviour
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.Inputs));
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
-        Omni = GameObject.Find(Constants.OmnipotentName).GetComponent<Omnipotent>();
+        Omni = GameObject.Find(Constants.OmnipotentName)?.GetComponent<Omnipotent>() ?? null;
     }
 
     public void CharacterFixedUpdate()
@@ -63,10 +67,12 @@ public class BaseCharacterMovement : MonoBehaviour
         CharacterMove(moveDirGlobal);
     }
 
-    public void CharacterUpdate(Vector3 moveDir, Ray throwTarget, bool highlightPickup = false)
+    public void CharacterUpdate(Vector3 moveDir, Vector3 forwardDir, Ray throwTarget, bool highlightPickup = false)
     {
         this.moveDirGlobal = moveDir;
         this.throwTarget = throwTarget;
+        this.forwardDir = forwardDir;
+        this.forwardDir.y = 0;
         
         CharacterFallOffRespawnDebug();
 
@@ -154,9 +160,9 @@ public class BaseCharacterMovement : MonoBehaviour
         return null;
     }
 
-    void SetAnimValue(Constants.AnimatorBooleans animat, object value)
+    public void SetAnimValue(Constants.AnimatorBooleans animat, object value)
     {
-        if (anim != null)
+        if (anim != null && !anim.IsUnityNull())
         {
             if (value is bool)
             {
@@ -173,11 +179,13 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
-    void SetMaxAnimSpeed(float speed)
+    void SetAnimSpeed(float speed, int max = -999)
     {
-        if(anim != null)
+        if(anim != null && !anim.IsUnityNull())
         {
-            if (anim.speed > speed)
+            anim.speed = speed;
+
+            if (max != -999 && anim.speed > speed)
             {
                 anim.speed = speed;
             }
@@ -244,7 +252,7 @@ public class BaseCharacterMovement : MonoBehaviour
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
             //                              vvvv
-            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup);
+            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup * moveSpeedModifierPublic);
         }
 
         // apply extra gravity values for more satisfying jump arc/fall speed
@@ -259,20 +267,19 @@ public class BaseCharacterMovement : MonoBehaviour
 
             if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.StickDeadZone)
             {
-                anim.speed = 1;
+                SetAnimSpeed(1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
             else if (currentSpeed > maxSpeed * sValues.AnimationThresholdRun)
             {
-                anim.speed = sValues.AnimationThresholdRun + moveDir.magnitude * (1 - sValues.AnimationThresholdRun);
+                SetAnimSpeed(sValues.AnimationThresholdRun + moveDir.magnitude * (1 - sValues.AnimationThresholdRun));
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, true);
             }
             else
             {
-                anim.speed = 0.5f + moveDir.magnitude;
-                SetMaxAnimSpeed(1);
+                SetAnimSpeed(0.5f + moveDir.magnitude, 1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, true);
                 SetAnimValue(Constants.AnimatorBooleans.IsRunning, false);
             }
@@ -368,9 +375,15 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    Vector3 GetDropOffPosition()
+    {
+        return new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z) + forwardDir * (1 + (pickedUpObject.transform.localScale.x / 2));
+    }
+
     void DeselectPickup()
     {
         pickedUpObject.transform.localScale *= sValues.PickedUpObjectScaleModifier;
+        pickedUpObject.transform.position = GetDropOffPosition();
         pickedUpObject.GetComponent<Collider>().enabled = true;
         pickedUpObject = null;
         moveSpeedModifierPickup = 1f;
@@ -439,14 +452,17 @@ public class BaseCharacterMovement : MonoBehaviour
         {
             if (pickedUpObject != null)
             {
-                Vector3 target = ThrowTargetPosition();
+                (Vector3, bool) targetInfo = ThrowTargetPosition();
+                Vector3 target = targetInfo.Item1;
 
-                target -= pickupPosition.position;
+                dropOffPosition = GetDropOffPosition();
+                target -= dropOffPosition;
 
                 Vector3 force = target.normalized;
                 force.y += 0.1f;
 
-                // TODO: Decide on velocity or AddForce
+                // reset velocity before applying new
+                pickedUpObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 pickedUpObject.GetComponent<Rigidbody>().AddForce(force * cValues.PickupForce, ForceMode.Impulse);
                 DeselectPickup();
 
@@ -458,39 +474,26 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
-    Vector3 ThrowTargetPosition()
+    public (Vector3, bool) ThrowTargetPosition()
     {
-        Vector3 target = Vector3.zero;
+        Vector3 target = Constants.InvalidVector3;
+        bool targetEnemy = false;
 
-        /* aim at closest target according to center of screen (WIP)
-        float dist = -1;
-
-        foreach(RaycastHit h in Physics.RaycastAll(startPos, transform.TransformPoint(throwTarget)                                                                - startPos, cValues.PickupThrowMaxDistance))
+        foreach(RaycastHit h in Physics.RaycastAll(throwTarget, cValues.PickupThrowMaxDistance))
         {
-            if (h.transform.CompareTag(Constants.Tags.Player.ToString()))
+            if (h.collider.tag.CompareTo(Constants.Tags.Enemy.ToString()) == 0)
             {
-                continue;
+                target = h.point; 
+                targetEnemy = true;
+                break;
             }
-
-            float compareDist = Vector3.Distance(startPos, h.point);
-            if (compareDist < dist || dist < 0)
-            {
-                dist = compareDist;
-                target = hit.point;
-            }
-        }*/
-
-        RaycastHit hitThrow;
-        if (Physics.Raycast(throwTarget, out hitThrow, cValues.PickupThrowMaxDistance, 0 << ((int)Constants.Layers.IgnoreRaycast & (int)Constants.Layers.Pickup)))
-        {
-            target = hitThrow.point;
         }
-        else
+        if(target == Constants.InvalidVector3)
         {
             target = throwTarget.GetPoint(cValues.PickupThrowMaxDistance);
         }
 
-        return target;
+        return (target, targetEnemy);
     }
 
     public GameObject GetClosestObjectOfType(bool highlight = false)
@@ -536,7 +539,7 @@ public class BaseCharacterMovement : MonoBehaviour
     #region Damage
     public void TakeDamage(int damage)
     {
-        if (variousTimers[(int)Constants.Timers.Invincibility] <= 0)
+        if (!IsInvincible && variousTimers[(int)Constants.Timers.Invincibility] <= 0)
         {
             healthCurrent -= damage;
 
@@ -562,6 +565,24 @@ public class BaseCharacterMovement : MonoBehaviour
         }
     }
 
+    public void OnHit((int damage, Vector3 normal, float velocity) info)
+    {
+        TakeDamage(info.damage);
+        KnockBack(info.normal, info.velocity);
+    }
+
+    public void KnockBack(Vector3 normal, float velocity)
+    {
+        rb.isKinematic = false;
+
+        if (normal.y < 0)
+        {
+            normal.y -= normal.y * 2;
+        }
+
+        rb.AddForce(normal * velocity * cValues.KnockbackForce);
+    }
+
     /// <summary>
     /// Visual indicator on the players current damage immunity. AKA Flash of Pain
     /// </summary>
@@ -582,6 +603,12 @@ public class BaseCharacterMovement : MonoBehaviour
                 if (r != null)
                 {
                     r.enabled = (blinkState == 1) ? !r.enabled : true;
+                }
+
+                SkinnedMeshRenderer sr = child.GetComponent<SkinnedMeshRenderer>();
+                if (sr != null)
+                {
+                    sr.enabled = (blinkState == 1) ? !sr.enabled : true;
                 }
             }
         }
@@ -679,8 +706,6 @@ public class BaseCharacterMovement : MonoBehaviour
 
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);
-
-        Gizmos.DrawRay(throwTarget);
     }
 #endif
 }

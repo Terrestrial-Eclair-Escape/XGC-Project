@@ -10,6 +10,7 @@ public class Constants
     public static string OmnipotentName = "_OMNIPOTENT";
 
     public static Vector2 DefaultMousePos = new Vector2(-9999999, -9999999);
+    public static Vector3 InvalidVector3 = new Vector3(-9999999, -9999999, -9999999);
 
     public static Vector3 HalfVector = new Vector3(0.5f, 0.5f, 0);
     public static Vector3 CenterOfScreen = new Vector3(Screen.width/2, Screen.height/2, 0);
@@ -20,7 +21,9 @@ public class Constants
         Death,
         Victory,
         Title,
-        Settings
+        Settings,
+        Credits,
+        Gallery,
     }
     public enum MenuOptions
     {
@@ -29,6 +32,8 @@ public class Constants
         Button_ReturnToTitle,
         Button_Resume,
         Button_Restart,
+        Button_Gallery,
+        Button_Credits,
     }
 
     public enum Inputs
@@ -71,6 +76,7 @@ public class Constants
         Invincibility,
         Searching,
         AIUniqueAttack,
+        AICooldown,
     }
 
     public enum Tags
@@ -87,6 +93,8 @@ public class Constants
         UILoadingFillBar,
         UIButton,
         Goal,
+        Enemy,
+        PlayerPositionTarget,
     }
 
     public enum Layers
@@ -147,5 +155,6 @@ public class Constants
         IsRunning,
         IsFalling,
         IsDead,
+        IsMounted,
     }
 }

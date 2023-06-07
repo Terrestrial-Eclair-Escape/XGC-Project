@@ -44,6 +44,9 @@ public class CharacterValues : ScriptableObject
     [Tooltip("Force to throw pickup.")]
     public float PickupForce;
 
+    [Tooltip("Force multiplier applied when knocked back.")]
+    public float KnockbackForce;
+
     [Tooltip("Extra values for character specific values. Check this character's CharacterValues ScriptableObjects for info on specific values.")]
     public List<ExtraValues> ExtraValueList;
 }

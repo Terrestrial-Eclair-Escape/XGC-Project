@@ -17,10 +17,14 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private InputAction inputFire;
     private InputAction inputInteract;
 
+    public GameObject lastFramePosObject;
+    private Queue<Vector3> lastFramePos = new Queue<Vector3>();
+    public int positionQueueCount = 5;
+
     void UIUpdate()
     {
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
-        Omni.DisplayReticle(pickedUpObject != null);
+        Omni?.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        Omni?.UpdateReticle(pickedUpObject != null, ThrowTargetPosition().Item2);
     }
 
     private void Awake()
@@ -32,7 +36,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private void Start()
     {
         CharacterStart();
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        Omni?.UIHealthUpdate(cValues.HealthMax, healthCurrent);
     }
 
     private void FixedUpdate()
@@ -40,6 +44,12 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         if (!HasDied)
         {
             CharacterFixedUpdate();
+
+            if(lastFramePos.Count > positionQueueCount)
+            {
+                lastFramePosObject.transform.position = lastFramePos.Dequeue();
+            }
+            lastFramePos.Enqueue(transform.position);
         }
     }
 
@@ -48,11 +58,14 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     {
         if (!HasDied)
         {
+
             CharacterUpdate(
                 InputMove,
+                Camera.main.transform.forward,
                 Camera.main.ViewportPointToRay(Constants.HalfVector),
                 true
             );
+
         }
         else if (!IsDead)
         {

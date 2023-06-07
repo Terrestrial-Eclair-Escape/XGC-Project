@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -22,6 +23,7 @@ public class Omnipotent : MonoBehaviour
 
     public SettingsValues sValues;
     [HideInInspector] public bool IsPaused;
+    [HideInInspector] public bool IsMusicPlaying;
 
     float[] bufferTimers;
 
@@ -48,12 +50,17 @@ public class Omnipotent : MonoBehaviour
     private int lastMenuValue;
     private Vector2 lastMousePos = Constants.DefaultMousePos;
 
+    private AudioSource aSource;
+    public AudioClip MenuSoundNavigate;
+    public AudioClip MenuSoundConfirm;
+
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
         playerActions = new PlayerInputActions();
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.UIInputs));
         eventSys = this.GetComponent<EventSystem>();
+        aSource = this.GetComponent<AudioSource>();
 
         titleIndex = TitleCanvas.gameObject.transform.Find(Constants.UIElements.TitleMenu.ToString()).GetSiblingIndex();
         deathIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.DeathMenu.ToString()).GetSiblingIndex();
@@ -86,14 +93,14 @@ public class Omnipotent : MonoBehaviour
         {
             Time.timeScale = 1;
 
-            menuState = Constants.MenuStates.Title;
-
+            PlayMusic();
             MenuControls();
         }
         else
         {
             UpdateGameplayUI();
 
+            PlayMusic();
             MenuControls();
         }
 
@@ -139,13 +146,40 @@ public class Omnipotent : MonoBehaviour
         }
 
         lastMousePos = inputMouse;
+
+        switch (menuState)
+        {
+            case Constants.MenuStates.None:
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+            default:
+                Cursor.lockState = CursorLockMode.None;
+                break;
+        }
     }
 
     void ResetValues()
     {
         IsPaused = false;
         menuState = Constants.MenuStates.None;
+        aSource.Stop();
+        IsMusicPlaying = false;
         Time.timeScale = 1;
+    }
+
+    void PlayMusic()
+    {
+        if (!IsMusicPlaying)
+        {
+            if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.LevelAdjusted.ToString()))
+            {
+                aSource.clip = Resources.Load<AudioClip>("Audio/Music/elevator-music-bossa-nova-background-music-version-60s-10900");
+                aSource.loop = true;
+                aSource.Play();
+            }
+
+            IsMusicPlaying = true;
+        }
     }
 
     void BufferUpdate()
@@ -235,6 +269,7 @@ public class Omnipotent : MonoBehaviour
     {
         if (menuState == Constants.MenuStates.Pause || menuState == Constants.MenuStates.None)
         {
+            aSource.PlayOneShot(MenuSoundConfirm);
             IsPaused = !IsPaused;
             loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(IsPaused);
 
@@ -273,8 +308,9 @@ public class Omnipotent : MonoBehaviour
 
     void MenuControls()
     {
-        if (loadingComplete && menuState != Constants.MenuStates.None)
+        if (loadingComplete && menuState != Constants.MenuStates.None && menuState != Constants.MenuStates.Gallery && menuState != Constants.MenuStates.Credits)
         {
+
             int menuItems = 0;
             int currentIndex = 0;
 
@@ -300,7 +336,7 @@ public class Omnipotent : MonoBehaviour
 
             Vector2 nav = inputNavigation.ReadValue<Vector2>();
 
-            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0)
+            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0 && menuItems > 0)
             {
                 if (nav.y > 0)
                 {
@@ -318,6 +354,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
                 else if (nav.y < 0)
@@ -336,6 +373,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
             }
@@ -349,6 +387,10 @@ public class Omnipotent : MonoBehaviour
             {
                 VisualizeMenuOption(loadedUI.transform.GetChild(currentIndex).GetChild(i), menuValue, i);
             }
+        }
+        else
+        {
+
         }
     }
 
@@ -377,9 +419,22 @@ public class Omnipotent : MonoBehaviour
                 case Constants.MenuStates.Victory:
                     //optionName = loadedUI.transform.GetChild(victoryIndex).GetChild(menuValue).name;
                     break;
+                case Constants.MenuStates.Credits:
+                    menuState = Constants.MenuStates.Title;
+                    loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(false);
+                    Debug.Log("should work");
+                    break;
             }
         }
 
+        if (optionName.Equals(""))
+        {
+
+        }
+        else
+        {
+            aSource.PlayOneShot(MenuSoundConfirm);
+        }
 
         if (optionName.Equals(Constants.MenuOptions.Button_Start.ToString()))
         {
@@ -400,6 +455,15 @@ public class Omnipotent : MonoBehaviour
         else if (optionName.Equals(Constants.MenuOptions.Button_Quit.ToString()))
         {
             Application.Quit();
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Credits.ToString()))
+        {
+            menuState = Constants.MenuStates.Credits;
+            loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(true);
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Gallery.ToString()))
+        {
+
         }
     }
 
@@ -471,6 +535,7 @@ public class Omnipotent : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
         {
+            menuState = Constants.MenuStates.Title;
             loadedUI = GameObject.Instantiate(TitleCanvas);
         }
         else
@@ -564,8 +629,10 @@ public class Omnipotent : MonoBehaviour
     }
     #endregion
 
-    public void DisplayReticle(bool hasObject)
+    public void UpdateReticle(bool hasObject, bool aimTargetIsEnemy)
     {
         loadedUI.transform.Find("Reticle").gameObject.SetActive(hasObject);
+
+        loadedUI.transform.Find("Reticle").GetComponent<Image>().color = (aimTargetIsEnemy) ? Color.red : Color.white;
     }
 }
