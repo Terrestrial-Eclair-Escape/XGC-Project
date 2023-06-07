@@ -26,10 +26,10 @@ public class StageGoal : MonoBehaviour
     }
     public IEnumerator OnStageCleared()
     {
-        Omni.SetVictoryState();
+        Omni?.SetVictoryState();
         StageCleared = true;
         yield return new WaitForSecondsRealtime(2);
-        Omni.LoadNextScene(SceneManager.GetActiveScene().name);
+        Omni?.LoadNextScene(SceneManager.GetActiveScene().name);
     }
 
     private void OnTriggerEnter(Collider other)

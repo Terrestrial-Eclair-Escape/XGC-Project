@@ -350,13 +350,16 @@ public class BaseCharacterMovement : MonoBehaviour
     #region PickUp
     void HighlightPickup(GameObject obj, bool highlight)
     {
-        if (highlight)
+        if(obj.TryGetComponent<Renderer>(out Renderer r))
         {
-            obj.GetComponent<Renderer>().material.EnableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
-        }
-        else
-        {
-            obj.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+            if (highlight)
+            {
+                r.material.EnableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+            }
+            else
+            {
+               r.material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+            }
         }
     }
 
@@ -368,7 +371,11 @@ public class BaseCharacterMovement : MonoBehaviour
         if (pickedUpObject != null)
         {
             moveSpeedModifierPickup = 1f / pickedUpObject.GetComponent<Rigidbody>().mass;
-            pickedUpObject.GetComponent<Renderer>().material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+
+            if (pickedUpObject.TryGetComponent<Renderer>(out Renderer r))
+            {
+                r.material.DisableKeyword(Constants.MaterialKeywords._EMISSION.ToString());
+            }
 
             PlayAudio(Constants.CharacterAudioList.PickupVoice);
             PlayAudio(Constants.CharacterAudioList.PickupSfx);
