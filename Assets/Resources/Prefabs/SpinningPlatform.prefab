@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 814709572240692560}
   - component: {fileID: 7338873391138913722}
   - component: {fileID: 6981763926137246892}
+  - component: {fileID: 587865229238955899}
   m_Layer: 0
   m_Name: SpinningPlatform
   m_TagString: Untagged
@@ -152,5 +153,18 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.35619658, y: 0.26782033, z: 0.33793485}
-  m_Center: {x: 0.0004351735, y: 0.13391016, z: -0.00000014901161}
+  m_Size: {x: 0.35619658, y: -0.03, z: 0.33793485}
+  m_Center: {x: 0.0004351735, y: 0.02, z: -0.00000014901161}
+--- !u!65 &587865229238955899
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175370891089008}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.1411641, y: -0.03, z: 0.1919578}
+  m_Center: {x: 0.02727641, y: 0.18, z: 0.02638533}

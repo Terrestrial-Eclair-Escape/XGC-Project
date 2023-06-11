@@ -54,11 +54,17 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        other.transform.SetParent(transform);
+        if(other.CompareTag(Constants.Tags.Player.ToString()) || other.CompareTag(Constants.Tags.Enemy.ToString()))
+        {
+            other.transform.SetParent(transform);
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        other.transform.SetParent(null);
+        if (other.CompareTag(Constants.Tags.Player.ToString()) || other.CompareTag(Constants.Tags.Enemy.ToString()))
+        {
+            other.transform.SetParent(null);
+        }
     }
 }

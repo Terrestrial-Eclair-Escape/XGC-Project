@@ -37,6 +37,11 @@ public class StageGoal : MonoBehaviour
         if (other.tag.Equals(Constants.Tags.Player.ToString()))
         {
             inRangePlayer = true;
+
+            if (other.GetComponent<BaseCharacterMovement>().pickedUpObject?.CompareTag(Constants.Tags.MainObjective.ToString()) ?? false)
+            {
+                inRangeObject = true;
+            }
         }
 
         if (other.tag.Equals(Constants.Tags.MainObjective.ToString()))
@@ -45,14 +50,28 @@ public class StageGoal : MonoBehaviour
         }
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag(Constants.Tags.Player.ToString()))
+        {
+            if (other.TryGetComponent<BaseCharacterMovement>(out BaseCharacterMovement bcm))
+            {
+                if (bcm.pickedUpObject != null && bcm.pickedUpObject.CompareTag(Constants.Tags.MainObjective.ToString()))
+                {
+                    inRangeObject = true;
+                }
+            }
+        }
+    }
+
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag.Equals(Constants.Tags.Player.ToString()))
+        if (other.CompareTag(Constants.Tags.Player.ToString()))
         {
             inRangePlayer = false;
         }
 
-        if (other.tag.Equals(Constants.Tags.MainObjective.ToString()))
+        if (other.CompareTag(Constants.Tags.MainObjective.ToString()))
         {
             inRangeObject = false;
         }

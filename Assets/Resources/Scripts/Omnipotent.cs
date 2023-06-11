@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -134,8 +135,13 @@ public class Omnipotent : MonoBehaviour
 
         if (onButton)
         {
-            menuValue = resultObj.transform.GetSiblingIndex();
-            lastMenuValue = menuValue;
+            if(menuValue == -1)
+            {
+
+                menuValue = resultObj.transform.GetSiblingIndex();
+                lastMenuValue = menuValue;
+                aSource.PlayOneShot(MenuSoundNavigate);
+            }
         }
         else
         {
@@ -171,7 +177,7 @@ public class Omnipotent : MonoBehaviour
     {
         if (!IsMusicPlaying)
         {
-            if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.LevelAdjusted.ToString()))
+            if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.LevelRamiro.ToString()))
             {
                 aSource.clip = Resources.Load<AudioClip>("Audio/Music/elevator-music-bossa-nova-background-music-version-60s-10900");
                 aSource.loop = true;
@@ -256,7 +262,7 @@ public class Omnipotent : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
         {
-            //SwitchScene(Constants.Scenes.LevelAdjusted);
+            //SwitchScene(Constants.Scenes.LevelRamiro);
         }
         else
         {
@@ -438,7 +444,7 @@ public class Omnipotent : MonoBehaviour
 
         if (optionName.Equals(Constants.MenuOptions.Button_Start.ToString()))
         {
-            SwitchScene(Constants.Scenes.LevelAdjusted);
+            SwitchScene(Constants.Scenes.LevelRamiro);
         }
         else if (optionName.Equals(Constants.MenuOptions.Button_Resume.ToString()))
         {
@@ -478,7 +484,7 @@ public class Omnipotent : MonoBehaviour
         }
         else
         {
-            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<Image>();
         }
 
 
@@ -488,7 +494,7 @@ public class Omnipotent : MonoBehaviour
         }
         else
         {
-            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
         }
 
         if(UIHealthCurrent <= 0)
@@ -542,8 +548,8 @@ public class Omnipotent : MonoBehaviour
         {
             loadedUI = GameObject.Instantiate(GameplayCanvas);
 
-            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
-            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<Image>();
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
 
             loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(false);
             loadedUI.transform.GetChild(deathIndex).gameObject.SetActive(false);
@@ -603,7 +609,7 @@ public class Omnipotent : MonoBehaviour
 
     public void LoadNextScene(string scene)
     {
-        if (scene.Equals(Constants.Scenes.LevelAdjusted.ToString()))
+        if (scene.Equals(Constants.Scenes.LevelRamiro.ToString()))
         {
             SwitchScene(Constants.Scenes.TitleScreen);
         }
@@ -620,11 +626,13 @@ public class Omnipotent : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            SwitchScene(Constants.Scenes.SebastianScene);
+            //SwitchScene(Constants.Scenes.SebastianScene);
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[0];
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SwitchScene(Constants.Scenes.LevelAdjusted);
+            //SwitchScene(Constants.Scenes.LevelRamiro);
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[1];
         }
     }
     #endregion

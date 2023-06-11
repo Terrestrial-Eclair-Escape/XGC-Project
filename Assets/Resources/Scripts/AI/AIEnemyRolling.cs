@@ -34,7 +34,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
 
             if (target != null)
             {
-                RotateCookie();
+                //RotateCookie();
 
                 if (IsTargetWithinRange && !IsAggro && !IsAwake)
                 {

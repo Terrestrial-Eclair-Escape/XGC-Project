@@ -22,7 +22,7 @@ public class BaseCharacterMovement : MonoBehaviour
     public Transform characterModelMeshParent;
 
     RaycastHit hit;
-    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius, Vector3.down, out hit, (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
+    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius, Vector3.down, out hit, (transform.lossyScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
@@ -34,7 +34,7 @@ public class BaseCharacterMovement : MonoBehaviour
     [HideInInspector] public int healthCurrent;      // current health
     [HideInInspector] public float moveSpeedModifierPublic = 1;
     [HideInInspector] public Omnipotent Omni;
-    [HideInInspector] public GameObject pickedUpObject;
+    [HideInInspector] public GameObject pickedUpObject = null;
     [HideInInspector] public Collider[] ObjectsInProximity => Physics.OverlapSphere(transform.position, cValues.PickupRadius).Where(x => x.CompareTag(Constants.Tags.Pickup.ToString()) || x.CompareTag(Constants.Tags.MainObjective.ToString())).ToArray();   // objects close to the character
 
 
@@ -252,7 +252,8 @@ public class BaseCharacterMovement : MonoBehaviour
             // if transform.forward, player always moves toward the direction they're looking
             // if maxMoveValue, adds inertia to movement 
             //                              vvvv
-            rb.MovePosition(rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup * moveSpeedModifierPublic);
+            Vector3 moveVector = rb.position + transform.forward * maxMoveValue.magnitude * Time.deltaTime * cValues.MoveSpeed * moveSpeedModifierPickup * moveSpeedModifierPublic;
+            rb.MovePosition(moveVector);
         }
 
         // apply extra gravity values for more satisfying jump arc/fall speed
@@ -367,7 +368,10 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         pickedUpObject = pickup;
         pickedUpObject.transform.localScale /= sValues.PickedUpObjectScaleModifier;
-        pickedUpObject.GetComponent<Collider>().enabled = false;
+        foreach(Collider c in pickedUpObject.GetComponentsInChildren<Collider>())
+        {
+            c.enabled = false;
+        }
         if (pickedUpObject != null)
         {
             moveSpeedModifierPickup = 1f / pickedUpObject.GetComponent<Rigidbody>().mass;
@@ -391,7 +395,10 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         pickedUpObject.transform.localScale *= sValues.PickedUpObjectScaleModifier;
         pickedUpObject.transform.position = GetDropOffPosition();
-        pickedUpObject.GetComponent<Collider>().enabled = true;
+        foreach (Collider c in pickedUpObject.GetComponentsInChildren<Collider>())
+        {
+            c.enabled = true;
+        }
         pickedUpObject = null;
         moveSpeedModifierPickup = 1f;
     }

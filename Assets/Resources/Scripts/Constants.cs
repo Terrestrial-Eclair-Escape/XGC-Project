@@ -123,6 +123,7 @@ public class Constants
         SebastianScene,
         Level,
         LevelAdjusted,
+        LevelRamiro,
     }
 
     public enum CharacterAudioList

@@ -34,20 +34,24 @@ public class CookieDoughController: MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        Vector3 contactNormal = collision.contacts[0].normal;
-        float angle = Vector3.Angle(Vector3.up, contactNormal);
-        if (collision.gameObject.CompareTag("Player"))
-            Debug.Log("angle is: " + angle);
+        if (collision.gameObject.CompareTag(Constants.Tags.Player.ToString()))
+        {
+            Vector3 contactNormal = collision.contacts[0].normal;
+            float angle = Vector3.Angle(Vector3.up, contactNormal);
+
+            //Debug.Log("angle is: " + angle);
             if (angle >= 180f)
             {
                 BouncePlayer(collision.gameObject);
-                Debug.Log("Bounce");
+                //Debug.Log("Bounce");
             }
-            else 
+            else
             {
                 KnockbackPlayer(collision.gameObject);
             }
-        timeSinceLastJump = 0f;
+
+            timeSinceLastJump = 0f;
+        }
     }
 
     Vector3 PlayerDirection(){
