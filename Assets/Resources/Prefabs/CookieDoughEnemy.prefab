@@ -1,5 +1,73 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5268712609387434207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8880626199496614361}
+  - component: {fileID: 3202823461156693390}
+  - component: {fileID: 2102158561058304878}
+  m_Layer: 0
+  m_Name: Wave (WIP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8880626199496614361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5268712609387434207}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7863712522983767224}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3202823461156693390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5268712609387434207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2fcf505b302dac45959bd67e47bd784, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  update: 1
+  waveLength: 3
+  steepness: 0.4
+  speed: 0.6
+  offset: 0
+  axis: {fileID: 8880626199496614361}
+--- !u!114 &2102158561058304878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5268712609387434207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa1b0e9bca230449ba29891858f8f1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waveDeformer: {fileID: 0}
+  waveLength: 2.5
+  steepness: 0.3
+  speed: 0.5
+  offset: 0
 --- !u!1 &7863712522983767231
 GameObject:
   m_ObjectHideFlags: 0
@@ -15,6 +83,7 @@ GameObject:
   - component: {fileID: 7863712522983767228}
   - component: {fileID: 7863712522983767225}
   - component: {fileID: 1454257884660294463}
+  - component: {fileID: 3777891918400954183}
   m_Layer: 0
   m_Name: CookieDoughEnemy
   m_TagString: Untagged
@@ -31,9 +100,10 @@ Transform:
   m_GameObject: {fileID: 7863712522983767231}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8880626199496614361}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -44,7 +114,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7863712522983767231}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!23 &7863712522983767226
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -94,7 +164,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7863712522983767231}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: f55293db0d30c064fb22991500f53271, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -121,6 +191,7 @@ MonoBehaviour:
   hitSounds:
   - {fileID: 8300000, guid: c59e2ea338f28884cb5f1763e45d86ee, type: 3}
   - {fileID: 8300000, guid: 21b04a4f44f6c304dad85aaaf0e37e77, type: 3}
+  jellyWobbler: {fileID: 2102158561058304878}
 --- !u!54 &7863712522983767225
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -129,7 +200,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7863712522983767231}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -233,3 +304,36 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3777891918400954183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7863712522983767231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85212d1b13358614ca54e74ba56f93ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assignOriginalMeshOnDisable: 1
+  updateMode: 0
+  cullingMode: 1
+  normalsRecalculation: 0
+  boundsRecalculation: 0
+  colliderRecalculation: 0
+  meshCollider: {fileID: 0}
+  data:
+    OriginalMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    Target:
+      meshFilter: {fileID: 7863712522983767227}
+      skinnedMeshRenderer: {fileID: 0}
+    initialized: 1
+  deformerElements:
+  - component: {fileID: 3202823461156693390}
+    active: 1
+  - component: {fileID: 0}
+    active: 1
+  customBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.25, y: 0.25, z: 0.25}

@@ -16,11 +16,15 @@ public class CookieDoughController: MonoBehaviour
     private GameObject player;
     private float timeSinceLastJump;
 
+    [SerializeField]
+    JellyWobbler jellyWobbler;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         aSource = GetComponent<AudioSource>();
         player = GameObject.FindGameObjectWithTag("Player");
+        jellyWobbler = GetComponentInChildren<JellyWobbler>();
     }
 
     void Update()
@@ -47,7 +51,7 @@ public class CookieDoughController: MonoBehaviour
             if (angle >= 180f)
             {
                 BouncePlayer(collision.gameObject);
-                //Debug.Log("Bounce");
+                //jellyWobbler.Wobble();
             }
             else
             {
@@ -80,6 +84,7 @@ public class CookieDoughController: MonoBehaviour
     {
         Vector3 bounceDirection = Vector3.up;
         player.GetComponent<Rigidbody>().AddForce(bounceDirection * bounceForce, ForceMode.Impulse);
+
     }
 
     bool IsCollidingWithPlayer()
