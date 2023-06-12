@@ -15,7 +15,7 @@ MonoBehaviour:
   HealthMax: 3
   HealthAttack: 1
   HealthDamageImmunity: 1
-  MoveSpeed: 2
+  MoveSpeed: 3
   MoveAcceleration: 0.18
   MoveDecceleration: 0.16
   MoveTurnAngleSlow: 15

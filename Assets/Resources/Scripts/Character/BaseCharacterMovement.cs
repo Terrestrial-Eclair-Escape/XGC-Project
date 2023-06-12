@@ -17,6 +17,7 @@ public class BaseCharacterMovement : MonoBehaviour
     public Rigidbody rb;                // rigidbody
     public AudioSource audioSource;
     public Animator anim;
+    public Animator additionalAnim;
     public Transform pickupPosition;
     public Transform characterModelPosition;
     public Transform characterModelMeshParent;
@@ -167,14 +168,26 @@ public class BaseCharacterMovement : MonoBehaviour
             if (value is bool)
             {
                 anim.SetBool(animat.ToString(), (bool)value);
+                if (additionalAnim != null)
+                {
+                    additionalAnim?.SetBool(animat.ToString(), (bool)value);
+                }
             }
             if (value is int)
             {
                 anim.SetInteger(animat.ToString(), (int)value);
+                if (additionalAnim != null)
+                {
+                    additionalAnim?.SetInteger(animat.ToString(), (int)value);
+                }
             }
             if (value is float)
             {
                 anim.SetFloat(animat.ToString(), (float)value);
+                if (additionalAnim != null)
+                {
+                    additionalAnim?.SetFloat(animat.ToString(), (float)value);
+                }
             }
         }
     }
@@ -184,10 +197,18 @@ public class BaseCharacterMovement : MonoBehaviour
         if(anim != null && !anim.IsUnityNull())
         {
             anim.speed = speed;
-
-            if (max != -999 && anim.speed > speed)
+            if(additionalAnim != null)
             {
-                anim.speed = speed;
+                additionalAnim.speed = speed;
+            }
+
+            if (max != -999 && anim.speed > max)
+            {
+                anim.speed = max;
+                if (additionalAnim != null)
+                {
+                    additionalAnim.speed = max;
+                }
             }
         }
     }

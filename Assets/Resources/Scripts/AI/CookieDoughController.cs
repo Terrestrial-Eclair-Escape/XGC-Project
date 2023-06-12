@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CookieDoughController: MonoBehaviour
@@ -8,14 +9,17 @@ public class CookieDoughController: MonoBehaviour
     public float jumpRadius = 5f; // the radius around the player within which the enemy will jump towards them
     public float bounceForce = 10f;
     public Vector3 jumpModifier = new Vector3(0, 1, 0); // modifies jump vector
+    public List<AudioClip> hitSounds;
 
+    private AudioSource aSource;
     private Rigidbody rb;
     private GameObject player;
     private float timeSinceLastJump;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); 
+        rb = GetComponent<Rigidbody>();
+        aSource = GetComponent<AudioSource>();
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -51,6 +55,8 @@ public class CookieDoughController: MonoBehaviour
             }
 
             timeSinceLastJump = 0f;
+
+            aSource.PlayOneShot(hitSounds[Random.Range(0, hitSounds.Count)]);
         }
     }
 
