@@ -9,13 +9,18 @@ public class BaseAI : BaseCharacterMovement
     [HideInInspector] public Vector3 targetLastKnownLocation;
     [HideInInspector] public bool IsAggro;
     [HideInInspector] public bool IsAwake;
+    [HideInInspector] public bool IsMounted;
+    [HideInInspector] public bool IsAttacking;
+    [HideInInspector] public GameObject childObject;
+    [HideInInspector] public GameObject parentObject;
+
     public AIValues aValues;
 
     private bool isTargetVisible;
 
     public void GetTarget()
     {
-        target = GameObject.FindGameObjectWithTag(Constants.Tags.Player.ToString());
+        target = GameObject.FindGameObjectWithTag(Constants.Tags.PlayerPositionTarget.ToString());
     }
 
     public bool GetTargetLastKnownLocation()
@@ -44,13 +49,15 @@ public class BaseAI : BaseCharacterMovement
         return isTargetVisible;
     }
 
+    public float DistanceToTarget { get { return Vector3.Distance(transform.position, target.transform.position); } }
+
     public bool IsTargetWithinRange 
     {
         get
         {
             if (target != null)
             {
-                if (Vector3.Distance(transform.position, target.transform.position) < aValues.DistanceToTarget)
+                if (DistanceToTarget < aValues.DistanceToTarget)
                 {
                     return GetTargetLastKnownLocation();
                 }
@@ -81,11 +88,14 @@ public class BaseAI : BaseCharacterMovement
     {
         CharacterStart();
 
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit))
+        if (!IsMounted)
         {
-            startPos = new Vector3(transform.position.x, hit.point.y + transform.localScale.y/2, transform.position.z);
-            transform.position = startPos;
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit))
+            {
+                startPos = new Vector3(transform.position.x, hit.point.y + transform.localScale.y / 2, transform.position.z);
+                transform.position = startPos;
+            }
         }
     }
 
@@ -114,5 +124,24 @@ public class BaseAI : BaseCharacterMovement
             IsAggro = false;
             CharacterMove((startPos - transform.position).normalized);
         }
+    }
+
+    public void SetMount(Transform parent)
+    {
+        parentObject = parent.gameObject;
+        transform.position = parentObject.transform.position;
+        transform.eulerAngles = parentObject.transform.eulerAngles;
+        IsMounted = true;
+        rb.isKinematic = true;
+        SetAnimValue(Constants.AnimatorBooleans.IsMounted, true);
+    }
+
+    public void AIKnockBack(Vector3 normal, float velocity)
+    {
+        parentObject = null;
+        IsMounted = false;
+        SetAnimValue(Constants.AnimatorBooleans.IsMounted, false);
+
+        KnockBack(normal, velocity);
     }
 }

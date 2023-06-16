@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CookieDoughController: MonoBehaviour
@@ -8,15 +9,22 @@ public class CookieDoughController: MonoBehaviour
     public float jumpRadius = 5f; // the radius around the player within which the enemy will jump towards them
     public float bounceForce = 10f;
     public Vector3 jumpModifier = new Vector3(0, 1, 0); // modifies jump vector
+    public List<AudioClip> hitSounds;
 
+    private AudioSource aSource;
     private Rigidbody rb;
     private GameObject player;
     private float timeSinceLastJump;
 
+    [SerializeField]
+    JellyWobbler jellyWobbler;
+
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); 
+        rb = GetComponent<Rigidbody>();
+        aSource = GetComponent<AudioSource>();
         player = GameObject.FindGameObjectWithTag("Player");
+        jellyWobbler = GetComponentInChildren<JellyWobbler>();
     }
 
     void Update()
@@ -34,20 +42,26 @@ public class CookieDoughController: MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        Vector3 contactNormal = collision.contacts[0].normal;
-        float angle = Vector3.Angle(Vector3.up, contactNormal);
-        if (collision.gameObject.CompareTag("Player"))
-            Debug.Log("angle is: " + angle);
+        if (collision.gameObject.CompareTag(Constants.Tags.Player.ToString()))
+        {
+            Vector3 contactNormal = collision.contacts[0].normal;
+            float angle = Vector3.Angle(Vector3.up, contactNormal);
+
+            //Debug.Log("angle is: " + angle);
             if (angle >= 180f)
             {
                 BouncePlayer(collision.gameObject);
-                Debug.Log("Bounce");
+                //jellyWobbler.Wobble();
             }
-            else 
+            else
             {
                 KnockbackPlayer(collision.gameObject);
             }
-        timeSinceLastJump = 0f;
+
+            timeSinceLastJump = 0f;
+
+            aSource.PlayOneShot(hitSounds[Random.Range(0, hitSounds.Count)]);
+        }
     }
 
     Vector3 PlayerDirection(){
@@ -70,6 +84,7 @@ public class CookieDoughController: MonoBehaviour
     {
         Vector3 bounceDirection = Vector3.up;
         player.GetComponent<Rigidbody>().AddForce(bounceDirection * bounceForce, ForceMode.Impulse);
+
     }
 
     bool IsCollidingWithPlayer()

@@ -58,6 +58,14 @@ MonoBehaviour:
     m_Localized: "Niv\xE5 avklarad!"
     m_Metadata:
       m_Items: []
+  - m_Id: 10511888571871232
+    m_Localized: Laddar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10516907316654080
+    m_Localized: "Erk\xE4nnanden"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

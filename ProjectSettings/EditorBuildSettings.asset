@@ -18,14 +18,8 @@ EditorBuildSettings:
     path: Assets/Scenes/SebastianScene.unity
     guid: 805b92f98ac9b004abbb94d5fd10418f
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
-    path: Assets/Scenes/Level.unity
-    guid: 2068b6dc0598b7c46aa185d0087e3418
-  - enabled: 1
-    path: Assets/Scenes/LevelAdjusted.unity
-    guid: 874285e495e07db418d431cff3109b1f
+    path: Assets/Scenes/LevelRamiro.unity
+    guid: 6fd8a1fe36c394d4d94bdccd2b462174
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: fc7bad66d54409746927f1efa28ba6c8, type: 2}
     com.unity.localization.addressable-group-rules: {fileID: 11400000, guid: 7500540a15b2d4643bb5da2d44009561, type: 2}

@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -22,6 +24,7 @@ public class Omnipotent : MonoBehaviour
 
     public SettingsValues sValues;
     [HideInInspector] public bool IsPaused;
+    [HideInInspector] public bool IsMusicPlaying;
 
     float[] bufferTimers;
 
@@ -48,17 +51,28 @@ public class Omnipotent : MonoBehaviour
     private int lastMenuValue;
     private Vector2 lastMousePos = Constants.DefaultMousePos;
 
+    private AudioSource aSource;
+    public AudioClip MenuSoundNavigate;
+    public AudioClip MenuSoundConfirm;
+
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
         playerActions = new PlayerInputActions();
         bufferTimers = GlobalScript.Instance.GenerateEnumList(typeof(Constants.UIInputs));
         eventSys = this.GetComponent<EventSystem>();
+        aSource = this.GetComponent<AudioSource>();
+
+        titleIndex = TitleCanvas.gameObject.transform.Find(Constants.UIElements.TitleMenu.ToString()).GetSiblingIndex();
+        deathIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.DeathMenu.ToString()).GetSiblingIndex();
+        pauseIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.PauseMenu.ToString()).GetSiblingIndex();
+        victoryIndex = GameplayCanvas.gameObject.transform.Find(Constants.UIElements.VictoryMenu.ToString()).GetSiblingIndex();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        lastMousePos = inputNavigation.ReadValue<Vector2>();
         SwitchScene(Constants.Scenes.TitleScreen);
     }
 
@@ -80,18 +94,16 @@ public class Omnipotent : MonoBehaviour
         {
             Time.timeScale = 1;
 
-            menuState = Constants.MenuStates.Title;
-
+            PlayMusic();
             MenuControls();
         }
         else
         {
             UpdateGameplayUI();
 
+            PlayMusic();
             MenuControls();
         }
-
-        Debug.Log(menuValue);
 
         UpdateLastMousePos();
     }
@@ -123,8 +135,13 @@ public class Omnipotent : MonoBehaviour
 
         if (onButton)
         {
-            menuValue = resultObj.transform.GetSiblingIndex();
-            lastMenuValue = menuValue;
+            if(menuValue == -1)
+            {
+
+                menuValue = resultObj.transform.GetSiblingIndex();
+                lastMenuValue = menuValue;
+                aSource.PlayOneShot(MenuSoundNavigate);
+            }
         }
         else
         {
@@ -135,13 +152,40 @@ public class Omnipotent : MonoBehaviour
         }
 
         lastMousePos = inputMouse;
+
+        switch (menuState)
+        {
+            case Constants.MenuStates.None:
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+            default:
+                Cursor.lockState = CursorLockMode.None;
+                break;
+        }
     }
 
     void ResetValues()
     {
         IsPaused = false;
         menuState = Constants.MenuStates.None;
+        aSource.Stop();
+        IsMusicPlaying = false;
         Time.timeScale = 1;
+    }
+
+    void PlayMusic()
+    {
+        if (!IsMusicPlaying)
+        {
+            if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.LevelRamiro.ToString()))
+            {
+                aSource.clip = Resources.Load<AudioClip>("Audio/Music/elevator-music-bossa-nova-background-music-version-60s-10900");
+                aSource.loop = true;
+                aSource.Play();
+            }
+
+            IsMusicPlaying = true;
+        }
     }
 
     void BufferUpdate()
@@ -218,7 +262,7 @@ public class Omnipotent : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
         {
-            //SwitchScene(Constants.Scenes.LevelAdjusted);
+            //SwitchScene(Constants.Scenes.LevelRamiro);
         }
         else
         {
@@ -231,6 +275,7 @@ public class Omnipotent : MonoBehaviour
     {
         if (menuState == Constants.MenuStates.Pause || menuState == Constants.MenuStates.None)
         {
+            aSource.PlayOneShot(MenuSoundConfirm);
             IsPaused = !IsPaused;
             loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(IsPaused);
 
@@ -269,8 +314,9 @@ public class Omnipotent : MonoBehaviour
 
     void MenuControls()
     {
-        if (loadingComplete && menuState != Constants.MenuStates.None)
+        if (loadingComplete && menuState != Constants.MenuStates.None && menuState != Constants.MenuStates.Gallery && menuState != Constants.MenuStates.Credits)
         {
+
             int menuItems = 0;
             int currentIndex = 0;
 
@@ -296,7 +342,7 @@ public class Omnipotent : MonoBehaviour
 
             Vector2 nav = inputNavigation.ReadValue<Vector2>();
 
-            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0)
+            if (bufferTimers[(int)Constants.UIInputs.Navigate] <= 0 && menuItems > 0)
             {
                 if (nav.y > 0)
                 {
@@ -314,6 +360,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
                 else if (nav.y < 0)
@@ -332,6 +379,7 @@ public class Omnipotent : MonoBehaviour
                         lastMenuValue = menuValue;
                     }
 
+                    aSource.PlayOneShot(MenuSoundNavigate);
                     bufferTimers[(int)Constants.UIInputs.Navigate] = sValues.BufferLeniency;
                 }
             }
@@ -345,6 +393,10 @@ public class Omnipotent : MonoBehaviour
             {
                 VisualizeMenuOption(loadedUI.transform.GetChild(currentIndex).GetChild(i), menuValue, i);
             }
+        }
+        else
+        {
+
         }
     }
 
@@ -373,28 +425,51 @@ public class Omnipotent : MonoBehaviour
                 case Constants.MenuStates.Victory:
                     //optionName = loadedUI.transform.GetChild(victoryIndex).GetChild(menuValue).name;
                     break;
+                case Constants.MenuStates.Credits:
+                    menuState = Constants.MenuStates.Title;
+                    loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(false);
+                    Debug.Log("should work");
+                    break;
             }
         }
 
-        if (optionName.Contains("Start"))
+        if (optionName.Equals(""))
         {
-            SwitchScene(Constants.Scenes.LevelAdjusted);
+
         }
-        else if (optionName.Contains("Resume"))
+        else
+        {
+            aSource.PlayOneShot(MenuSoundConfirm);
+        }
+
+        if (optionName.Equals(Constants.MenuOptions.Button_Start.ToString()))
+        {
+            SwitchScene(Constants.Scenes.LevelRamiro);
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Resume.ToString()))
         {
             ChangePauseState();
         }
-        else if (optionName.Contains("Restart"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_Restart.ToString()))
         {
             SwitchScene(SceneManager.GetActiveScene().name);
         }
-        else if (optionName.Contains("Title"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_ReturnToTitle.ToString()))
         {
             SwitchScene(Constants.Scenes.TitleScreen);
         }
-        else if (optionName.Contains("Quit"))
+        else if (optionName.Equals(Constants.MenuOptions.Button_Quit.ToString()))
         {
             Application.Quit();
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Credits.ToString()))
+        {
+            menuState = Constants.MenuStates.Credits;
+            loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(true);
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Gallery.ToString()))
+        {
+
         }
     }
 
@@ -409,7 +484,7 @@ public class Omnipotent : MonoBehaviour
         }
         else
         {
-            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<Image>();
         }
 
 
@@ -419,7 +494,7 @@ public class Omnipotent : MonoBehaviour
         }
         else
         {
-            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
         }
 
         if(UIHealthCurrent <= 0)
@@ -466,14 +541,15 @@ public class Omnipotent : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString()))
         {
+            menuState = Constants.MenuStates.Title;
             loadedUI = GameObject.Instantiate(TitleCanvas);
         }
         else
         {
             loadedUI = GameObject.Instantiate(GameplayCanvas);
 
-            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(0).GetComponent<Image>();
-            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            GameplayHealthRadial = loadedUI.transform.GetChild(0).GetChild(1).GetComponent<Image>();
+            GameplayHealthText = loadedUI.transform.GetChild(0).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
 
             loadedUI.transform.GetChild(pauseIndex).gameObject.SetActive(false);
             loadedUI.transform.GetChild(deathIndex).gameObject.SetActive(false);
@@ -533,7 +609,7 @@ public class Omnipotent : MonoBehaviour
 
     public void LoadNextScene(string scene)
     {
-        if (scene.Equals(Constants.Scenes.LevelAdjusted.ToString()))
+        if (scene.Equals(Constants.Scenes.LevelRamiro.ToString()))
         {
             SwitchScene(Constants.Scenes.TitleScreen);
         }
@@ -550,12 +626,21 @@ public class Omnipotent : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            SwitchScene(Constants.Scenes.SebastianScene);
+            //SwitchScene(Constants.Scenes.SebastianScene);
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[0];
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SwitchScene(Constants.Scenes.LevelAdjusted);
+            //SwitchScene(Constants.Scenes.LevelRamiro);
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[1];
         }
     }
     #endregion
+
+    public void UpdateReticle(bool hasObject, bool aimTargetIsEnemy)
+    {
+        loadedUI.transform.Find("Reticle").gameObject.SetActive(hasObject);
+
+        loadedUI.transform.Find("Reticle").GetComponent<Image>().color = (aimTargetIsEnemy) ? Color.red : Color.white;
+    }
 }

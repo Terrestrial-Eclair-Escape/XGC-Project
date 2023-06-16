@@ -27,4 +27,7 @@ public class SettingsValues : ScriptableObject
     public float AnimationThresholdWalk;
     [Tooltip("Percentage of max speed character has to travel before run animation starts"), Range(0,1)]
     public float AnimationThresholdRun;
+
+    [Tooltip("Modifier to alter size of picked up objects (shrinks them to make them easier to carry).")]
+    public float PickedUpObjectScaleModifier = 3f;
 }

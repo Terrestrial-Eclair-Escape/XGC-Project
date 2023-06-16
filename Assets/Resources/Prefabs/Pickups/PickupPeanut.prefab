@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7844920512259191379}
   - component: {fileID: 2706706463443011085}
   - component: {fileID: 760956951527194040}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 1193284539810856594}
   - component: {fileID: 190598553073559605}
   - component: {fileID: 2444412584760866378}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: PickupPeanut
   m_TagString: Pickup
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 2788149096883031559}
   - component: {fileID: 7698275382430961452}
   - component: {fileID: 9008356196414574506}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

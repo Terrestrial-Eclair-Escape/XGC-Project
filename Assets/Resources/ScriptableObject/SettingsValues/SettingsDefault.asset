@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SettingsDefault
   m_EditorClassIdentifier: 
   StickDeadZone: 0.1
-  MaxDistanceCharacterGrounded: 1.2
+  MaxDistanceCharacterGrounded: 1.5
   BufferLeniency: 0.2
   CoyoteTimeLeniency: 0.2
   DamageImmunityLeniency: 0.2

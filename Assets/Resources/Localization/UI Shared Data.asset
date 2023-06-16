@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: stage_cleared
     m_Metadata:
       m_Items: []
+  - m_Id: 10511888571871232
+    m_Key: loading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10516907316654080
+    m_Key: credits
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

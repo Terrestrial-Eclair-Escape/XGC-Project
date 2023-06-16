@@ -9,4 +9,5 @@ public class CharacterAnimations : ScriptableObject
     public AnimationClip Walk;
     public AnimationClip Run;
     public AnimationClip Jump;
+    public AnimationClip Death;
 }

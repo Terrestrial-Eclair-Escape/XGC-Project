@@ -17,7 +17,15 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private InputAction inputFire;
     private InputAction inputInteract;
 
-    private bool StageCleared;
+    public GameObject lastFramePosObject;
+    private Queue<Vector3> lastFramePos = new Queue<Vector3>();
+    public int positionQueueCount = 5;
+
+    void UIUpdate()
+    {
+        Omni?.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        Omni?.UpdateReticle(pickedUpObject != null, ThrowTargetPosition().Item2);
+    }
 
     private void Awake()
     {
@@ -28,7 +36,7 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     private void Start()
     {
         CharacterStart();
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        Omni?.UIHealthUpdate(cValues.HealthMax, healthCurrent);
     }
 
     private void FixedUpdate()
@@ -36,6 +44,12 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         if (!HasDied)
         {
             CharacterFixedUpdate();
+
+            if(lastFramePos.Count > positionQueueCount)
+            {
+                lastFramePosObject.transform.position = lastFramePos.Dequeue();
+            }
+            lastFramePos.Enqueue(transform.position);
         }
     }
 
@@ -44,18 +58,21 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     {
         if (!HasDied)
         {
+
             CharacterUpdate(
                 InputMove,
-                Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, cValues.PickupThrowMaxDistance)),
+                Camera.main.transform.forward,
+                Camera.main.ViewportPointToRay(Constants.HalfVector),
                 true
             );
+
         }
         else if (!IsDead)
         {
             OnDead();
         }
 
-        Omni.UIHealthUpdate(cValues.HealthMax, healthCurrent);
+        UIUpdate();
     }
 
     private void LateUpdate()
@@ -130,35 +147,5 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
         IsDead = true;
         Debug.Log($"{transform.name} DEAD");
         yield return null;
-    }
-
-    public IEnumerator OnStageCleared()
-    {
-        Omni.SetVictoryState();
-        StageCleared = true;
-        yield return new WaitForSecondsRealtime(2);
-        Omni.LoadNextScene(SceneManager.GetActiveScene().name);
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag(Constants.Tags.Goal.ToString()))
-        {
-            VictoryCheck();
-        }
-    }
-
-    void VictoryCheck()
-    {
-        if (!StageCleared)
-        {
-            if (pickedUpObject != null)
-            {
-                if (pickedUpObject.CompareTag(Constants.Tags.MainObjective.ToString()))
-                {
-                    StartCoroutine(OnStageCleared());
-                }
-            }
-        }
     }
 }

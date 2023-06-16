@@ -24,11 +24,11 @@ public class HazardSwissRoll : MonoBehaviour
         RaycastHit hit;
         if(Physics.Raycast(startPos, Vector3.down, out hit))
         {
-            startPos = new Vector3(startPos.x, hit.point.y + transform.localScale.x / 2, startPos.z);
+            startPos = new Vector3(startPos.x, hit.point.y + transform.localScale.x * GetComponent<CapsuleCollider>().radius, startPos.z);
         }
         if (Physics.Raycast(endPos, Vector3.down, out hit))
         {
-            endPos = new Vector3(endPos.x, hit.point.y + transform.localScale.x / 2, endPos.z);
+            endPos = new Vector3(endPos.x, hit.point.y + transform.localScale.x * GetComponent<CapsuleCollider>().radius, endPos.z);
         }
 
         dist = Vector3.Distance(startPos, endPos);

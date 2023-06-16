@@ -28,4 +28,5 @@ MonoBehaviour:
   PickupSpeed: 0.2
   PickupThrowMaxDistance: 30
   PickupForce: 30
+  KnockbackForce: 10
   ExtraValueList: []

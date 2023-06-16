@@ -28,21 +28,20 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     // Update is called once per frame
     void Update()
     {
-
         if (!HasDied)
         {
             AIUpdate();
 
             if (target != null)
             {
-                RotateCookie();
+                //RotateCookie();
 
                 if (IsTargetWithinRange && !IsAggro && !IsAwake)
                 {
                     StartCoroutine(WakeUp());
                 }
 
-                if (IsAggro && IsAwake && (IsTargetWithinRange || variousTimers[(int)Constants.Timers.Searching] > 0))
+                if (IsAggro && IsAwake && (IsTargetWithinRange || variousTimers[(int)Constants.Timers.Searching] > 0) && variousTimers[(int)Constants.Timers.Invincibility] <= 0)
                 {
                     Vector3 targetPos = new Vector3(targetLastKnownLocation.x, transform.position.y, targetLastKnownLocation.z);
                     Vector3 targetRot = (targetPos - transform.position).normalized;
@@ -98,7 +97,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     {
         if (collision.transform.CompareTag(Constants.Tags.Player.ToString()))
         {
-            collision.gameObject.SendMessage("TakeDamage", cValues.HealthAttack);
+            collision.gameObject.SendMessage("OnHit", (cValues.HealthAttack, -collision.GetContact(0).normal, collision.relativeVelocity.magnitude));
         }
 
         if(collision.transform.GetComponent<Rigidbody>() != null && collision.transform.GetComponent<Rigidbody>().velocity.magnitude > 2)
@@ -109,6 +108,7 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
             }
             else
             {
+                AIKnockBack(collision.GetContact(0).normal, collision.relativeVelocity.magnitude);
                 TakeDamage(1);
             }
         }

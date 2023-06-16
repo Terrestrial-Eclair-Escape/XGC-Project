@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Script to ´check if an object is grounded or not.
+/// Script to ï¿½check if an object is grounded or not.
 /// <br/><br/>
 /// TODO: Get it working with Physics.CheckSphere/Physics.SphereCast instead?
 /// </summary>

@@ -13,21 +13,21 @@ MonoBehaviour:
   m_Name: AudioAlien
   m_EditorClassIdentifier: 
   JumpVoice:
-  - {fileID: 8300000, guid: 106d5f0c32cb5dd4ba6bcd558051d598, type: 3}
-  - {fileID: 8300000, guid: a375eb17b46494c45ae5c56ea234b71f, type: 3}
-  - {fileID: 8300000, guid: d6be42fc8477af54ea38290bacb54393, type: 3}
+  - {fileID: 8300000, guid: 3610fa9d9a26d914ab28c93c3fc024f2, type: 3}
+  - {fileID: 8300000, guid: 306ba5900a04b3246a1029464394449d, type: 3}
+  - {fileID: 8300000, guid: 71867b7ed8a87c64d89e3cd46faae669, type: 3}
+  - {fileID: 8300000, guid: 86ff07ac13f61e148b5f44c5235a79ce, type: 3}
   JumpSfx: []
-  AttackVoice:
-  - {fileID: 8300000, guid: 6579c533937cf9c48924ee9373f0ef72, type: 3}
+  AttackVoice: []
   AttackSfx: []
   TakeDamageVoice:
-  - {fileID: 8300000, guid: 00617542d5df6cb4e8ddf6358cded658, type: 3}
-  - {fileID: 8300000, guid: c69ecb44da0b48641a0afd0a2b933af5, type: 3}
-  - {fileID: 8300000, guid: 5bff1755f58dc8d4bb8a6e78167b26fd, type: 3}
+  - {fileID: 8300000, guid: 140a7a0b4000d6b47934f60db2703c69, type: 3}
+  - {fileID: 8300000, guid: 46facb28cd5a3794993de15c3d281df6, type: 3}
+  - {fileID: 8300000, guid: c5e8a6348508c30438480a54c1b5b1d8, type: 3}
   TakeDamageSfx: []
   DieVoice:
-  - {fileID: 8300000, guid: fd2d8d7bd3816934fac9648b3609e102, type: 3}
-  - {fileID: 8300000, guid: 0e6ec805bc1a89f4ba2da473a4eb0e74, type: 3}
+  - {fileID: 8300000, guid: 373eb051fb473844198ce8758ce07833, type: 3}
+  - {fileID: 8300000, guid: dc6392bc32b87164a8d9bc499d020156, type: 3}
   DieSfx: []
   PickupVoice: []
   PickupSfx:

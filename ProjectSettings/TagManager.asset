@@ -4,11 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Platform
+  - PlayerPositionTarget
   - Pickup
+  - Enemy
   - MainObjective
-  - UILoadingFillBar
-  - UIButton
   - Goal
+  - UIButton
   layers:
   - Default
   - TransparentFX
@@ -16,7 +18,7 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
+  - Pickup
   - 
   - 
   - 
