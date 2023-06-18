@@ -122,6 +122,7 @@ MonoBehaviour:
   rb: {fileID: 3537304743330589134}
   audioSource: {fileID: 3537304743330589131}
   anim: {fileID: 1132201047552470815}
+  additionalAnim: {fileID: 0}
   pickupPosition: {fileID: 3537304743027750003}
   characterModelPosition: {fileID: 3537304742593318500}
   characterModelMeshParent: {fileID: 2220597318830671406}
@@ -295,7 +296,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &9109998047439040502
 Transform:
   m_ObjectHideFlags: 0
@@ -332,8 +333,8 @@ MonoBehaviour:
   m_UVBias: {x: 0, y: 0}
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 0}
-  m_Size: {x: 1.5, y: 1.5, z: 5.5846906}
-  m_FadeFactor: 0.4
+  m_Size: {x: 1, y: 1, z: 5.5846906}
+  m_FadeFactor: 0.5
 --- !u!1 &7373363180805636536
 GameObject:
   m_ObjectHideFlags: 0

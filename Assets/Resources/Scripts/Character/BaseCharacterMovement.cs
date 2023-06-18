@@ -23,12 +23,13 @@ public class BaseCharacterMovement : MonoBehaviour
     public Transform characterModelMeshParent;
 
     RaycastHit hit;
-    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius, Vector3.down, out hit, (transform.lossyScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
+    public bool NearGround => Physics.SphereCast(transform.position, cCollider.radius * 0.9f, Vector3.down, out hit, (transform.lossyScale.y / 2) * sValues.MaxDistanceCharacterGrounded);
     [HideInInspector] public bool IsGrounded;           // is the character on the cround?
     [HideInInspector] public bool IsCoyoteTimeActive;   // does the character have a chance to perform the first jump from falling?
     [HideInInspector] public bool IsUTurn;              // is the character performing a u-turn?
     [HideInInspector] public bool IsDead;               // character death has started
     [HideInInspector] public bool IsInvincible;
+    [HideInInspector] public bool IsPlayer;
     [HideInInspector] public bool HasDied;              // should character death start?
     [HideInInspector] public float[] variousTimers;   // list of variousTimers values
     [HideInInspector] public float[] bufferTimers;   // list of timers for input buffers
@@ -50,6 +51,7 @@ public class BaseCharacterMovement : MonoBehaviour
     private Ray throwTarget;
     private Vector3 forwardDir;
     private Vector3 dropOffPosition;
+    private bool onlyRotate;
 
 
     public void CharacterStart()
@@ -59,6 +61,12 @@ public class BaseCharacterMovement : MonoBehaviour
         debugStartPos = transform.position;
         healthCurrent = cValues.HealthMax;
         Omni = GameObject.Find(Constants.OmnipotentName)?.GetComponent<Omnipotent>() ?? null;
+    }
+
+    public void UpdateMoveDirGlobal(Vector3 moveDir, bool onlyRotate = false)
+    {
+        moveDirGlobal = moveDir;
+        this.onlyRotate = onlyRotate;
     }
 
     public void CharacterFixedUpdate()
@@ -74,6 +82,7 @@ public class BaseCharacterMovement : MonoBehaviour
         this.throwTarget = throwTarget;
         this.forwardDir = forwardDir;
         this.forwardDir.y = 0;
+        IsPlayer = highlightPickup;
         
         CharacterFallOffRespawnDebug();
 
@@ -243,16 +252,21 @@ public class BaseCharacterMovement : MonoBehaviour
     public void CharacterMove(Vector3 moveDir)
     {
         // if we do a roughly 180 degree turn, set to true to adjust values to allow for a good transition
-        IsUTurn = Vector3.Angle(transform.forward, moveDir) > 150 && maxMoveValue.magnitude > sValues.StickDeadZone;
+        IsUTurn = Vector3.Angle(transform.forward, moveDir) > 120;
 
         // is moveinput higher than our deadzone value
-        if (moveDir.magnitude >= sValues.StickDeadZone && !IsUTurn)
+        if (moveDir.magnitude >= sValues.StickDeadZone)
         {
-            // accelerate
-            maxMoveValue = Vector3.MoveTowards(maxMoveValue, moveDir, cValues.MoveAcceleration);
+            if (!IsUTurn && !onlyRotate)
+            {
+                // accelerate
+                maxMoveValue = Vector3.MoveTowards(maxMoveValue, moveDir, cValues.MoveAcceleration);
+            }
 
             // rotate towards move input direction
-            CharacterRotateTowards(moveDir);
+            CharacterRotateTowards(moveDir); 
+            
+
         }
         else
         {
@@ -287,7 +301,7 @@ public class BaseCharacterMovement : MonoBehaviour
             float currentSpeed = Vector3.Distance(lastPos, currentPos);
             float maxSpeed = cValues.MoveSpeed* Time.deltaTime;
 
-            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk && moveDir.magnitude < sValues.StickDeadZone)
+            if (currentSpeed < maxSpeed * sValues.AnimationThresholdWalk || moveDir.magnitude < sValues.StickDeadZone)
             {
                 SetAnimSpeed(1);
                 SetAnimValue(Constants.AnimatorBooleans.IsWalking, false);
@@ -674,7 +688,7 @@ public class BaseCharacterMovement : MonoBehaviour
     {
         if (!IsGrounded)
         {
-            rb.velocity -= GlobalScript.Instance.NullYAxis(rb.velocity);
+            rb.velocity -= GlobalScript.Instance.NullYAxis(rb.velocity) * 0.1f;
 
             // if we haven't jumped yet
             if (timesJumped == 0)
@@ -737,7 +751,7 @@ public class BaseCharacterMovement : MonoBehaviour
         Gizmos.color = gizmoColor;
 
         // ground check
-        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded, transform.position.z), 0.45f);
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - (transform.localScale.y / 2) * sValues.MaxDistanceCharacterGrounded, transform.position.z), cCollider.radius * 0.9f);
 
         // pickup radius
         Gizmos.DrawWireSphere(transform.position, cValues.PickupRadius);

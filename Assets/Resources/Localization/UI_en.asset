@@ -66,6 +66,28 @@ MonoBehaviour:
     m_Localized: Credits
     m_Metadata:
       m_Items: []
+  - m_Id: 14372156108353536
+    m_Localized: Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742300739416064
+    m_Localized: Story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742949799571456
+    m_Localized: "You are Kali, a master pilot from the planet of Hanakiita. Hanakiita\u2019s
+      ever-growing population has caused a severe lack of fuel resources. Kali has
+      been sent out in search of more. \n\nThis leads him to Oleum 73, a planet full
+      of these materials. On his way there, he collides with one of Oleum 73's own
+      satellites, sending him and his spaceship racing down towards the planet\u2019s
+      surface. \n\nHe safely lands, though his ship has been damaged in the process,
+      causing parts of it to spread all over the crash site. The crash site happens
+      to be inside of a building that contains a seemingly infinite amount of the
+      planet\u2019s fuel resources, namely sugar and oil. \n\nKali must now search
+      the bakery for the ship\u2019s missing parts in order to return home with the
+      good news. "
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

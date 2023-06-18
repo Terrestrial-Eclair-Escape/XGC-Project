@@ -54,9 +54,10 @@ public class AIEnemyMountable : BaseAI, CharacterInterface, AIInterface
                         look.x -= look.x; look.z -= look.z;
                         float angleDifference = Quaternion.Angle(look, rb.rotation);
 
-                        CharacterMove(targetRot);
-                        CharacterJump();
-                        CharacterRotateTowards(targetRot);
+                        UpdateMoveDirGlobal(targetRot);
+                        //CharacterMove(targetRot);
+                        //CharacterJump();
+                        //CharacterRotateTowards(targetRot);
 
 
                         if (IsGrounded && variousTimers[(int)Constants.Timers.AICooldown] > 0)

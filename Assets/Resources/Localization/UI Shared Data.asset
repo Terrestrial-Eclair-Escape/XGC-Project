@@ -63,6 +63,18 @@ MonoBehaviour:
     m_Key: credits
     m_Metadata:
       m_Items: []
+  - m_Id: 14372156108353536
+    m_Key: controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742300739416064
+    m_Key: story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742949799571456
+    m_Key: storyall
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

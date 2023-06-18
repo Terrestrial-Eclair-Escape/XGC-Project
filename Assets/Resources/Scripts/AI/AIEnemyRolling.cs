@@ -9,6 +9,9 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     Vector3 startRot;
     Vector3 lastPlacedPos;
 
+    bool rotate;
+    Vector3 moveDir;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +26,11 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
     void FixedUpdate()
     {
         CharacterFixedUpdate();
+
+        if (rotate)
+        {
+            CharacterRotateTowards(moveDir);
+        }
     }
 
     // Update is called once per frame
@@ -53,18 +61,26 @@ public class AIEnemyRolling : BaseAI, CharacterInterface, AIInterface
                     {
                         if (variousTimers[(int)Constants.Timers.AIUniqueAttack] <= 0)
                         {
-                            CharacterMove(targetRot);
+                            rotate = false;
+                            UpdateMoveDirGlobal(targetRot);
+                            //CharacterMove(targetRot);
                         }
                         else
                         {
-                            CharacterRotateTowards(targetRot);
+                            moveDir = targetRot;
+                            rotate = true;
+                            UpdateMoveDirGlobal(targetRot, true);
+                            // CharacterRotateTowards(targetRot);
                         }
                     }
                     else
                     {
                         variousTimers[(int)Constants.Timers.AIUniqueAttack] = cValues.ExtraValueList[1].Value;
-                        CharacterMove(Vector3.zero);
-                        CharacterRotateTowards(targetRot);
+                        //CharacterMove(Vector3.zero);
+                        UpdateMoveDirGlobal(Vector3.zero);
+                        moveDir = targetRot;
+                        rotate = true;
+                        //CharacterRotateTowards(targetRot);
                     }
                 }
 

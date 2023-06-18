@@ -28,7 +28,7 @@ public class Omnipotent : MonoBehaviour
 
     float[] bufferTimers;
 
-    private Constants.MenuStates menuState;
+    public Constants.MenuStates menuState;
 
     // UI
     public Canvas TitleCanvas;
@@ -55,6 +55,8 @@ public class Omnipotent : MonoBehaviour
     public AudioClip MenuSoundNavigate;
     public AudioClip MenuSoundConfirm;
 
+    bool hasSetDefaultLanguage = false;
+
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -79,6 +81,15 @@ public class Omnipotent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!hasSetDefaultLanguage)
+        {
+            if (LocalizationSettings.AvailableLocales.Locales.Any())
+            {
+                LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[0];
+                hasSetDefaultLanguage = true;
+            }
+        }
+
         BufferUpdate();
 
         if (!IsLoadingScene)
@@ -135,10 +146,11 @@ public class Omnipotent : MonoBehaviour
 
         if (onButton)
         {
-            if(menuValue == -1)
-            {
+            int mv = resultObj.transform.GetSiblingIndex();
 
-                menuValue = resultObj.transform.GetSiblingIndex();
+            if (menuValue == -1 || menuValue != mv)
+            {
+                menuValue = mv;
                 lastMenuValue = menuValue;
                 aSource.PlayOneShot(MenuSoundNavigate);
             }
@@ -314,7 +326,7 @@ public class Omnipotent : MonoBehaviour
 
     void MenuControls()
     {
-        if (loadingComplete && menuState != Constants.MenuStates.None && menuState != Constants.MenuStates.Gallery && menuState != Constants.MenuStates.Credits)
+        if (loadingComplete && menuState != Constants.MenuStates.None && menuState != Constants.MenuStates.Gallery && menuState != Constants.MenuStates.SingleScreen)
         {
 
             int menuItems = 0;
@@ -425,12 +437,15 @@ public class Omnipotent : MonoBehaviour
                 case Constants.MenuStates.Victory:
                     //optionName = loadedUI.transform.GetChild(victoryIndex).GetChild(menuValue).name;
                     break;
-                case Constants.MenuStates.Credits:
-                    menuState = Constants.MenuStates.Title;
-                    loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(false);
-                    Debug.Log("should work");
-                    break;
             }
+        }
+
+        if(menuState == Constants.MenuStates.SingleScreen)
+        {
+            menuState = (SceneManager.GetActiveScene().name.Equals(Constants.Scenes.TitleScreen.ToString())) ? Constants.MenuStates.Title : Constants.MenuStates.Pause;
+            loadedUI.transform.Find("CreditsMenu")?.gameObject.SetActive(false);
+            loadedUI.transform.Find("ControlsMenu")?.gameObject.SetActive(false);
+            loadedUI.transform.Find("StoryMenu")?.gameObject.SetActive(false);
         }
 
         if (optionName.Equals(""))
@@ -464,8 +479,18 @@ public class Omnipotent : MonoBehaviour
         }
         else if (optionName.Equals(Constants.MenuOptions.Button_Credits.ToString()))
         {
-            menuState = Constants.MenuStates.Credits;
+            menuState = Constants.MenuStates.SingleScreen;
             loadedUI.transform.Find("CreditsMenu").gameObject.SetActive(true);
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Controls.ToString()))
+        {
+            menuState = Constants.MenuStates.SingleScreen;
+            loadedUI.transform.Find("ControlsMenu").gameObject.SetActive(true);
+        }
+        else if (optionName.Equals(Constants.MenuOptions.Button_Story.ToString()))
+        {
+            menuState = Constants.MenuStates.SingleScreen;
+            loadedUI.transform.Find("StoryMenu").gameObject.SetActive(true);
         }
         else if (optionName.Equals(Constants.MenuOptions.Button_Gallery.ToString()))
         {

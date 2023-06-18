@@ -145,7 +145,6 @@ public class CharacterScript : BaseCharacterMovement, CharacterInterface
     public IEnumerator Dying()
     {
         IsDead = true;
-        Debug.Log($"{transform.name} DEAD");
         yield return null;
     }
 }

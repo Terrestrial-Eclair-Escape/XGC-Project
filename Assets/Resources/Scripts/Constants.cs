@@ -22,8 +22,8 @@ public class Constants
         Victory,
         Title,
         Settings,
-        Credits,
         Gallery,
+        SingleScreen,
     }
     public enum MenuOptions
     {
@@ -34,6 +34,8 @@ public class Constants
         Button_Restart,
         Button_Gallery,
         Button_Credits,
+        Button_Controls,
+        Button_Story,
     }
 
     public enum Inputs

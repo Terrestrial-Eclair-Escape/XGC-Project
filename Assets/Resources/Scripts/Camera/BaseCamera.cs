@@ -17,6 +17,8 @@ public class BaseCamera : MonoBehaviour
 
     private Vector3 lastMousePos;
 
+    private Omnipotent Omni = null;
+
     private void Awake()
     {
         playerActions = new PlayerInputActions();
@@ -43,19 +45,27 @@ public class BaseCamera : MonoBehaviour
 
         camStartPos = new Vector3(0, cValues.CameraHeight, 0);
         cam.localPosition = camStartPos;
+        
+        Omni = GameObject.Find(Constants.OmnipotentName).GetComponent<Omnipotent>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        ParentPosition();
-        CameraPosition();
+        if(Omni == null || !Omni.IsPaused)
+        {
+            ParentPosition();
+            CameraPosition();
+        }
     }
 
     private void LateUpdate()
     {
-        ParentRotation();
-        CameraFOV();
+        if (Omni == null || !Omni.IsPaused)
+        {
+            ParentRotation();
+            CameraFOV();
+        }
     }
 
     /// <summary>
@@ -65,13 +75,16 @@ public class BaseCamera : MonoBehaviour
     {
         Vector2 input = inputLook.ReadValue<Vector2>();
         Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+
+        float divideValue = 30;
+
         if (mouseInput != Vector2.zero)
         {
-            input /= 10;
+            input /= (20);
         }
 
         // clamp camera rotation
-        transform.eulerAngles += new Vector3(-input.y * cValues.SensitivityVertical, input.x * cValues.SensitivityHorizontal, 0);
+        transform.eulerAngles += new Vector3(-input.y * cValues.SensitivityVertical, input.x * cValues.SensitivityHorizontal, 0) * Time.deltaTime * divideValue;
         transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(ClampAngle(transform.eulerAngles.x, cValues.AngleMin, cValues.AngleMax), transform.eulerAngles.y, 0), 0.5f);
 
         lastMousePos = Input.mousePosition;

@@ -20,3 +20,4 @@ MonoBehaviour:
   DamageImmunityBlinkTimer: 0.1
   AnimationThresholdWalk: 0.01
   AnimationThresholdRun: 0.5
+  PickedUpObjectScaleModifier: 3

@@ -38,9 +38,12 @@ public class StageGoal : MonoBehaviour
         {
             inRangePlayer = true;
 
-            if (other.GetComponent<BaseCharacterMovement>().pickedUpObject?.CompareTag(Constants.Tags.MainObjective.ToString()) ?? false)
+            if (other.TryGetComponent<BaseCharacterMovement>(out BaseCharacterMovement bcm))
             {
-                inRangeObject = true;
+                if (bcm.pickedUpObject != null && bcm.pickedUpObject.CompareTag(Constants.Tags.MainObjective.ToString()))
+                {
+                    inRangeObject = true;
+                }
             }
         }
 

@@ -66,6 +66,28 @@ MonoBehaviour:
     m_Localized: "Erk\xE4nnanden"
     m_Metadata:
       m_Items: []
+  - m_Id: 14372156108353536
+    m_Localized: Kontroller
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742300739416064
+    m_Localized: "Ber\xE4ttelse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14742949799571456
+    m_Localized: "Du \xE4r Kali, en m\xE4starpilot fr\xE5n planeten Hanakiita. Hanakiitas
+      v\xE4xande population har orsakat en drastisk brist p\xE5 br\xE4nsleresurer.
+      Kali har skickats ut p\xE5 jakt efter mer.\n\nDetta leder honom till Oleum
+      73, en planet full p\xE5 dessa material. P\xE5 v\xE4gen dit kolliderar han
+      med en av Oleum 73s egna satelliter, vilket skickar han och hans rymdskepp
+      rakt ner mot planetens yta. \n\nHan landar s\xE4kert, men hans skepp har skadats
+      i processen, vilket har f\xE5tt dess delar att spridas \xF6verallt inom kraschplatsen.
+      Kraschplatsen r\xE5kar vara i en byggnad som inneh\xE5ller en till synes o\xE4ndlig
+      m\xE4ngd av planetens br\xE4nsleresurer, n\xE4mligen socker och olja.\n\nKali
+      m\xE5ste nu leta igenom bageriet efter sitt skepps saknade delar s\xE5 att
+      han kan \xE5terv\xE4nda hem med de goda nyheterna."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
